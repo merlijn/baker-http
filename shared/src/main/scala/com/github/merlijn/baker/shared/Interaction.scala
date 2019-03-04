@@ -1,4 +1,4 @@
-package com.github.merlijn.baker.model
+package com.github.merlijn.baker.shared
 
 case class Interaction(name: String,
                        originalName: Option[String],

@@ -2,9 +2,9 @@ package com.github.merlijn.baker.api
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.{Directives, Route}
+import com.github.merlijn.baker.api.html.Pages
+import com.github.merlijn.baker.shared.{Recipe, SharedMessages}
 import com.ing.baker.compiler.RecipeCompiler
-import com.github.merlijn.baker.model.Recipe
-import com.github.merlijn.baker.shared.SharedMessages
 import com.ing.baker.runtime.core.{Baker, ProcessEvent}
 
 import scala.concurrent.duration._
@@ -21,7 +21,9 @@ object BakerRoutes extends Directives with EntityMarshalling {
       pathSingleSlash {
         get {
           complete {
-            com.github.merlijn.akkahttpscalajs.html.index.render(SharedMessages.itWorks)
+
+            Pages.index(SharedMessages.itWorks)
+//            index.render(SharedMessages.itWorks)
           }
         }
       } ~
@@ -84,7 +86,9 @@ object BakerRoutes extends Directives with EntityMarshalling {
       post {
         entity(as[Recipe]) { recipe =>
 
-          val compiledRecipe = RecipeCompiler.compileRecipe(recipe.toDSL)
+          val dslRecipe = com.ing.baker.recipe.javadsl.Recipe(recipe.name)
+
+          val compiledRecipe = RecipeCompiler.compileRecipe(dslRecipe)
 
           complete("compilation errors: " + compiledRecipe.validationErrors.mkString(","))
         }
@@ -93,7 +97,9 @@ object BakerRoutes extends Directives with EntityMarshalling {
       post {
         entity(as[Recipe]) { recipe =>
 
-          val compiledRecipe = RecipeCompiler.compileRecipe(recipe.toDSL)
+          val dslRecipe = com.ing.baker.recipe.javadsl.Recipe(recipe.name)
+
+          val compiledRecipe = RecipeCompiler.compileRecipe(dslRecipe)
 
           try {
             println(s"Adding recipe called: ${compiledRecipe.name}")

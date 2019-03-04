@@ -4,11 +4,20 @@ import akka.http.scaladsl.marshalling.{Marshaller, PredefinedToEntityMarshallers
 import akka.http.scaladsl.model.MediaTypes.{`application/json`, `text/html`, `text/plain`, `text/xml`}
 import akka.http.scaladsl.model.{HttpEntity, MediaType}
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
-import com.github.merlijn.baker.model.Recipe
+import com.github.merlijn.baker.shared.Recipe
 import com.ing.baker.runtime.core.{ProcessEvent, ProcessState, SensoryEventStatus}
 import play.twirl.api.{Html, Txt, Xml}
+import scalatags.Text
 
 trait EntityMarshalling {
+
+  implicit val ScalaTagsMarshaller: ToEntityMarshaller[Text.TypedTag[String]] =
+    PredefinedToEntityMarshallers.stringMarshaller(`text/html`).compose {
+      case html if html.tag == "html" =>
+        println("html")
+        s"<!DOCTYPE html>${html.render}"
+      case tag => tag.render
+    }
 
   /** Twirl marshallers for Xml, Html and Txt mediatypes */
   implicit val twirlHtmlMarshaller = twirlMarshaller[Html](`text/html`)
