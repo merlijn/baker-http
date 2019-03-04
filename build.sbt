@@ -24,9 +24,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     scalaJsScripts,
     bakerRuntime,
     bakerCompiler,
-    liftJson,
-    kryo,
-    kryoSerializers
+    liftJson
   ),
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value,
