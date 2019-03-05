@@ -3,18 +3,20 @@ import sbtcrossproject.{crossProject, CrossType}
 val bakerVersion = "3.0.0-SNAPSHOT"
 val akkaVersion = "2.5.21"
 
-val bakerRuntime =  "com.ing.baker" %% "baker-runtime"  % bakerVersion
-val bakerCompiler = "com.ing.baker" %% "baker-compiler" % bakerVersion
+val bakerRuntime =              "com.ing.baker"              %% "baker-runtime"                      % bakerVersion
+val bakerCompiler =             "com.ing.baker"              %% "baker-compiler"                     % bakerVersion
 
-val akkaStream = "com.typesafe.akka" %% "akka-stream" % akkaVersion
-val akkaHttp = "com.typesafe.akka" %% "akka-http" % "10.1.1"
-val scalaJsScripts = "com.vmunier" %% "scalajs-scripts" % "1.1.2"
+val akkaStream =                "com.typesafe.akka"          %% "akka-stream"                        % akkaVersion
+val akkaHttp =                  "com.typesafe.akka"          %% "akka-http"                          % "10.1.1"
+val scalaJsScripts =            "com.vmunier"                %% "scalajs-scripts"                    % "1.1.2"
 val liftJson =                  "net.liftweb"                %% "lift-json"                          % "3.3.0"
-val kryo =                      "com.esotericsoftware"       % "kryo"                                % "4.0.0"
+val kryo =                      "com.esotericsoftware"       %  "kryo"                               % "4.0.0"
 val kryoSerializers =           "de.javakaffee"              %  "kryo-serializers"                   % "0.41"
-val graphVizJava = "guru.nidi" % "graphviz-java" % "0.8.3"
+val graphVizJava =              "guru.nidi"                  %  "graphviz-java"                      % "0.8.3"
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
+  dockerAlias := dockerAlias.value.copy(name = "baker-http-server"),
+  moduleName := "baker-http-server",
   scalaJSProjects := Seq(client),
   pipelineStages in Assets := Seq(scalaJSPipeline),
   // triggers scalaJSPipeline when using compile or continuous compilation
@@ -37,6 +39,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
   dependsOn(sharedJvm)
 
 lazy val client = (project in file("client")).settings(commonSettings).settings(
+  moduleName := "baker-http-client",
   scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.5"
@@ -48,6 +51,10 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("shared"))
   .settings(commonSettings)
+  .settings(
+    moduleName := "baker-http-shared"
+  )
+
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
