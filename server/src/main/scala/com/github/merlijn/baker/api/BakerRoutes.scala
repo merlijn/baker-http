@@ -3,8 +3,9 @@ package com.github.merlijn.baker.api
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.{Directives, Route}
 import com.github.merlijn.baker.api.html.Pages
-import com.github.merlijn.baker.shared.{Recipe, SharedMessages}
+import com.github.merlijn.baker.shared.SharedMessages
 import com.ing.baker.compiler.RecipeCompiler
+import com.ing.baker.recipe.javadsl
 import com.ing.baker.runtime.core.{Baker, ProcessEvent}
 
 import scala.concurrent.duration._
@@ -84,22 +85,23 @@ object BakerRoutes extends Directives with EntityMarshalling {
 
     def recipeRoutes(): Route = path("compile") {
       post {
-        entity(as[Recipe]) { recipe =>
+        entity(as[javadsl.Recipe]) { recipe =>
 
-          val dslRecipe = com.ing.baker.recipe.javadsl.Recipe(recipe.name)
+          val compiledRecipe = RecipeCompiler.compileRecipe(recipe)
 
-          val compiledRecipe = RecipeCompiler.compileRecipe(dslRecipe)
+          import guru.nidi.graphviz.engine.Graphviz
+          import guru.nidi.graphviz.parse.Parser
 
-          complete("compilation errors: " + compiledRecipe.validationErrors.mkString(","))
+          val graph = Parser.read(compiledRecipe.getRecipeVisualization)
+
+          complete(Graphviz.fromGraph(graph))
         }
       }
-    } ~ path("recipe") {
+    } ~ path("add") {
       post {
-        entity(as[Recipe]) { recipe =>
+        entity(as[javadsl.Recipe]) { recipe =>
 
-          val dslRecipe = com.ing.baker.recipe.javadsl.Recipe(recipe.name)
-
-          val compiledRecipe = RecipeCompiler.compileRecipe(dslRecipe)
+          val compiledRecipe = RecipeCompiler.compileRecipe(recipe)
 
           try {
             println(s"Adding recipe called: ${compiledRecipe.name}")
@@ -112,6 +114,18 @@ object BakerRoutes extends Directives with EntityMarshalling {
             }
           }
         }
+      }
+    } ~ path("svg" / Segment) { recipeId =>
+
+      get {
+
+        import guru.nidi.graphviz.engine.Graphviz
+        import guru.nidi.graphviz.parse.Parser
+
+        val recipe = baker.getRecipe(recipeId)
+        val graph = Parser.read(recipe.getRecipeVisualization)
+
+        complete(Graphviz.fromGraph(graph))
       }
     }
 

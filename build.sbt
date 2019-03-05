@@ -12,6 +12,7 @@ val scalaJsScripts = "com.vmunier" %% "scalajs-scripts" % "1.1.2"
 val liftJson =                  "net.liftweb"                %% "lift-json"                          % "3.3.0"
 val kryo =                      "com.esotericsoftware"       % "kryo"                                % "4.0.0"
 val kryoSerializers =           "de.javakaffee"              %  "kryo-serializers"                   % "0.41"
+val graphVizJava = "guru.nidi" % "graphviz-java" % "0.8.3"
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
   scalaJSProjects := Seq(client),
@@ -25,7 +26,8 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     scalaJsScripts,
     bakerRuntime,
     bakerCompiler,
-    liftJson
+    liftJson,
+    graphVizJava
   ),
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value,
