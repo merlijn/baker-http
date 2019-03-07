@@ -1,0 +1,21 @@
+{
+  "name":"com.example.webhop.ValidateOrder",
+  "input":[
+    {
+      "name":"order",
+      "schema":{
+        "type":"string"
+      }
+    }
+  ],
+  "output":[
+    {
+      "name":"com.example.webshop.ValidateOrder.Valid",
+      "providedIngredients":[]
+    },
+    {
+      "name":"com.example.webshop.ValidateOrder.Sorry",
+      "providedIngredients":[]
+    }
+  ]
+}

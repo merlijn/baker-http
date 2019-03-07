@@ -6,8 +6,8 @@ import akka.stream.ActorMaterializer
 import com.github.merlijn.baker.api.BakerRoutes
 import com.ing.baker.runtime.core.Baker
 
-object WebServer {
-  def main(args: Array[String]) {
+object WebServer extends App {
+
     implicit val system = ActorSystem("server-system")
     implicit val materializer = ActorMaterializer()
 
@@ -22,5 +22,4 @@ object WebServer {
     Http().bindAndHandle(routes, interface, port)
 
     println(s"Server online at http://$interface:$port")
-  }
 }

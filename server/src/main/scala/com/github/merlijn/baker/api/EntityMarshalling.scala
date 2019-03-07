@@ -1,15 +1,15 @@
 package com.github.merlijn.baker.api
 
-import akka.http.scaladsl.marshalling.{Marshaller, PredefinedToEntityMarshallers, ToEntityMarshaller}
+import akka.http.scaladsl.marshalling.{PredefinedToEntityMarshallers, ToEntityMarshaller}
+import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model.MediaTypes._
-import akka.http.scaladsl.model.{HttpEntity, MediaType}
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
-import com.github.merlijn.baker.shared.{Event, Ingredient, Recipe, Schema}
+import com.github.merlijn.baker.api.CirceCodecs._
+import com.github.merlijn.baker.shared._
 import com.ing.baker.recipe.javadsl
 import com.ing.baker.runtime.core.{ProcessEvent, ProcessState, SensoryEventStatus}
 import com.ing.baker.types._
 import guru.nidi.graphviz.engine.Graphviz
-import play.twirl.api.{Html, Txt, Xml}
 import scalatags.Text
 
 trait EntityMarshalling {
@@ -17,19 +17,10 @@ trait EntityMarshalling {
   implicit val ScalaTagsMarshaller: ToEntityMarshaller[Text.TypedTag[String]] =
     PredefinedToEntityMarshallers.stringMarshaller(`text/html`).compose {
       case html if html.tag == "html" =>
-        println("html")
+        println(html.render)
         s"<!DOCTYPE html>${html.render}"
       case tag => tag.render
     }
-
-  /** Twirl marshallers for Xml, Html and Txt mediatypes */
-  implicit val twirlHtmlMarshaller = twirlMarshaller[Html](`text/html`)
-  implicit val twirlTxtMarshaller  = twirlMarshaller[Txt](`text/plain`)
-  implicit val twirlXmlMarshaller  = twirlMarshaller[Xml](`text/xml`)
-
-  def twirlMarshaller[A](contentType: MediaType): ToEntityMarshaller[A] = {
-    Marshaller.StringMarshaller.wrap(contentType)(_.toString)
-  }
 
   import net.liftweb.json.Serialization._
   import net.liftweb.json._
@@ -61,7 +52,7 @@ trait EntityMarshalling {
     graph.render(Format.SVG).toString.getBytes
   }
 
-  implicit val recipeUnmarshaller: Unmarshaller[HttpEntity, javadsl.Recipe] = jsonUnMarshaller[Recipe].map { recipe =>
+  implicit val recipeUnmarshaller: Unmarshaller[HttpEntity, javadsl.Recipe] = jsonCirceUnMarshaller[Recipe].map { recipe =>
 
     def parseType(schema: Schema): Type = schema.`type` match {
       case "string"  => CharArray

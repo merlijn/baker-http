@@ -2,7 +2,6 @@ package com.github.merlijn.baker.api
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.{Directives, Route}
-import com.github.merlijn.baker.api.html.Pages
 import com.github.merlijn.baker.shared.SharedMessages
 import com.ing.baker.compiler.RecipeCompiler
 import com.ing.baker.recipe.javadsl
@@ -18,13 +17,11 @@ object BakerRoutes extends Directives with EntityMarshalling {
 
   def apply(baker: Baker)(implicit actorSystem: ActorSystem): Route = {
 
-    val testRoute = {
+    val scalaJSRoutes = {
       pathSingleSlash {
         get {
           complete {
-
-            Pages.index(SharedMessages.itWorks)
-//            index.render(SharedMessages.itWorks)
+            Html.index("title", SharedMessages.itWorks)
           }
         }
       } ~
@@ -129,7 +126,7 @@ object BakerRoutes extends Directives with EntityMarshalling {
       }
     }
 
-      testRoute ~
+      scalaJSRoutes ~
         pathPrefix("recipe") { recipeRoutes() } ~
         pathPrefix("process" / Segment) { processRoutes _ }
 

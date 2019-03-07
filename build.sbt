@@ -2,6 +2,7 @@ import sbtcrossproject.{crossProject, CrossType}
 
 val bakerVersion = "3.0.0-SNAPSHOT"
 val akkaVersion = "2.5.21"
+val circeVersion = "0.11.1"
 
 val bakerRuntime =              "com.ing.baker"              %% "baker-runtime"                      % bakerVersion
 val bakerCompiler =             "com.ing.baker"              %% "baker-compiler"                     % bakerVersion
@@ -13,6 +14,11 @@ val liftJson =                  "net.liftweb"                %% "lift-json"     
 val kryo =                      "com.esotericsoftware"       %  "kryo"                               % "4.0.0"
 val kryoSerializers =           "de.javakaffee"              %  "kryo-serializers"                   % "0.41"
 val graphVizJava =              "guru.nidi"                  %  "graphviz-java"                      % "0.8.3"
+val scalaTags =                 "com.lihaoyi"                %% "scalatags"                          % "0.6.7"
+
+val circeCore = "io.circe" %% "circe-core" % circeVersion
+val circeParser = "io.circe" %% "circe-parser" % circeVersion
+val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
   dockerAlias := dockerAlias.value.copy(name = "baker-http-server"),
@@ -22,19 +28,20 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
   // triggers scalaJSPipeline when using compile or continuous compilation
   compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
   libraryDependencies ++= Seq(
-    "com.lihaoyi" %% "scalatags" % "0.6.7",
+    scalaJsScripts,
+    scalaTags,
     akkaHttp,
     akkaStream,
-    scalaJsScripts,
     bakerRuntime,
     bakerCompiler,
     liftJson,
+    circeCore, circeParser, circeGeneric,
     graphVizJava
   ),
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value,
   // Compile the project before generating Eclipse files, so that generated .scala or .class files for Twirl templates are present
-  EclipseKeys.preTasks := Seq(compile in Compile)
+//  EclipseKeys.preTasks := Seq(compile in Compile)
 ).enablePlugins(SbtWeb, JavaAppPackaging).
   dependsOn(sharedJvm)
 
