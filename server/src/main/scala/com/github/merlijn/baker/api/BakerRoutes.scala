@@ -2,10 +2,11 @@ package com.github.merlijn.baker.api
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.{Directives, Route}
-import com.github.merlijn.baker.shared.SharedMessages
+import com.github.merlijn.baker.model.SharedMessages
 import com.ing.baker.compiler.RecipeCompiler
 import com.ing.baker.recipe.javadsl
 import com.ing.baker.runtime.core.{Baker, ProcessEvent}
+import com.ing.baker.types.Value
 
 import scala.concurrent.duration._
 
@@ -65,7 +66,7 @@ object BakerRoutes extends Directives with EntityMarshalling {
         path("ingredients") {
           get {
 
-            val ingredients = baker.getIngredients(processId)
+            val ingredients: Map[String, Value] = baker.getIngredients(processId)
 
             complete(ingredients)
           }

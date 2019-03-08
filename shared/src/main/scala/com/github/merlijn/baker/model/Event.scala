@@ -1,3 +1,3 @@
-package com.github.merlijn.baker.shared
+package com.github.merlijn.baker.model
 
 case class Event(name: String, label: Option[String], providedIngredients: List[Ingredient])

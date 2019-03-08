@@ -19,10 +19,10 @@ object Html {
         ),
         raw(
           scalajs.html.scripts(
-            "client",
+            "baker-http-client",
             name => s"/assets/$name",
             name => getClass.getResource(s"/public/$name") != null)
-          .body)
+          .body.trim)
       )
     )
   }

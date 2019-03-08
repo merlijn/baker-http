@@ -16,9 +16,11 @@ val kryoSerializers =           "de.javakaffee"              %  "kryo-serializer
 val graphVizJava =              "guru.nidi"                  %  "graphviz-java"                      % "0.8.3"
 val scalaTags =                 "com.lihaoyi"                %% "scalatags"                          % "0.6.7"
 
-val circeCore = "io.circe" %% "circe-core" % circeVersion
-val circeParser = "io.circe" %% "circe-parser" % circeVersion
-val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
+lazy val sharedDeps = Def.setting(Seq(
+  "io.circe" %%% "circe-core" % circeVersion,
+  "io.circe" %%% "circe-parser" % circeVersion,
+  "io.circe" %%% "circe-generic" % circeVersion
+))
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
   dockerAlias := dockerAlias.value.copy(name = "baker-http-server"),
@@ -27,6 +29,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
   pipelineStages in Assets := Seq(scalaJSPipeline),
   // triggers scalaJSPipeline when using compile or continuous compilation
   compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
+  libraryDependencies ++= sharedDeps.value,
   libraryDependencies ++= Seq(
     scalaJsScripts,
     scalaTags,
@@ -34,8 +37,6 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     akkaStream,
     bakerRuntime,
     bakerCompiler,
-    liftJson,
-    circeCore, circeParser, circeGeneric,
     graphVizJava
   ),
   WebKeys.packagePrefix in Assets := "public/",
@@ -59,7 +60,8 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .in(file("shared"))
   .settings(commonSettings)
   .settings(
-    moduleName := "baker-http-shared"
+    moduleName := "baker-http-shared",
+    libraryDependencies ++= sharedDeps.value
   )
 
 lazy val sharedJvm = shared.jvm

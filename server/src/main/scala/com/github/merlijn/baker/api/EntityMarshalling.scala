@@ -4,46 +4,72 @@ import akka.http.scaladsl.marshalling.{PredefinedToEntityMarshallers, ToEntityMa
 import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model.MediaTypes._
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
-import com.github.merlijn.baker.api.CirceCodecs._
-import com.github.merlijn.baker.shared._
+import com.github.merlijn.baker.model.JsonCodecs._
+import com.github.merlijn.baker.model._
 import com.ing.baker.recipe.javadsl
 import com.ing.baker.runtime.core.{ProcessEvent, ProcessState, SensoryEventStatus}
 import com.ing.baker.types._
 import guru.nidi.graphviz.engine.Graphviz
+import io.circe._
 import scalatags.Text
 
 trait EntityMarshalling {
 
-  implicit val ScalaTagsMarshaller: ToEntityMarshaller[Text.TypedTag[String]] =
+  implicit val scalaTagsMarshaller: ToEntityMarshaller[Text.TypedTag[String]] =
     PredefinedToEntityMarshallers.stringMarshaller(`text/html`).compose {
-      case html if html.tag == "html" =>
-        println(html.render)
-        s"<!DOCTYPE html>${html.render}"
-      case tag => tag.render
+      case html if html.tag == "html" => s"<!DOCTYPE html>${html.render}"
+      case tag                        => tag.render
     }
 
-  import net.liftweb.json.Serialization._
-  import net.liftweb.json._
-  implicit val formats = DefaultFormats
+  import io.circe.generic.semiauto._
 
-  def jsonUnMarshaller[T : Manifest]: FromEntityUnmarshaller[T] = PredefinedFromEntityUnmarshallers.stringUnmarshaller.map { string =>
-    read[T](string)
+  def parseJson(json: io.circe.Json): Value = {
+    if (json.isNull)
+      NullValue
+    else if (json.isBoolean)
+      PrimitiveValue(json.asBoolean.get)
+    else if (json.isString)
+      PrimitiveValue(json.asString.get)
+    else if (json.isObject) {
+      val fields: Iterable[(String, Value)] = json.asObject.get.toIterable.map {
+        case (name, value) => name -> parseJson(value)
+      }
+      RecordValue(fields.toMap)
+    }
+    else
+      throw new IllegalArgumentException("Invalid json")
   }
 
-  def jsonMarshaller[T : Manifest]: ToEntityMarshaller[T] = PredefinedToEntityMarshallers.stringMarshaller(`application/json`).compose { obj =>
-    write(obj)
+  implicit val valueDecoder: Decoder[Value] = (c: HCursor) => Right(parseJson(c.value))
+  implicit val valueEncoder: Encoder[Value] = {
+    case PrimitiveValue(b: Boolean) => Json.fromBoolean(b)
+    case PrimitiveValue(i: Integer) => Json.fromInt(i)
+    case PrimitiveValue(s: String)  => Json.fromString(s)
+    case RecordValue(records) =>
+      val fields: Seq[(String, Json)] = records.toSeq.map {
+        case (name, value) => name -> Json.Null
+      }
+      Json.obj(fields: _*)
   }
+
+  implicit val processEventDecoder: Decoder[ProcessEvent] = deriveDecoder[ProcessEvent]
+  implicit val processEventEncoder: Encoder[ProcessEvent] = deriveEncoder[ProcessEvent]
+
+  implicit val processStateDecoder: Decoder[ProcessState] = deriveDecoder[ProcessState]
+
+  implicit val sensoryEventStatusEncoder: Encoder[SensoryEventStatus] = (a: SensoryEventStatus) => Json.fromString(a.name())
 
   implicit val processStateUnMarshaller = jsonUnMarshaller[ProcessState]
+
   implicit val eventUnmarshaller = jsonUnMarshaller[ProcessEvent]
+  implicit val eventMarshaller = jsonMarshaller[ProcessEvent]
+
   implicit val eventListUnmarshaller = jsonUnMarshaller[List[ProcessEvent]]
+  implicit val eventListMarshaller = jsonMarshaller[List[ProcessEvent]]
+
+  implicit val ingredientsMarhaller = jsonMarshaller[Map[String, Value]]
 
   implicit val sensoryEventStatusMarhaller = jsonMarshaller[SensoryEventStatus]
-
-  implicit val ingredientsMarhaller = jsonMarshaller[Map[String, Any]]
-  implicit val eventMarshaller = jsonMarshaller[ProcessEvent]
-  implicit val eventListMarshaller = jsonMarshaller[List[ProcessEvent]]
-  implicit val stringMarshaller = jsonMarshaller[String]
 
   implicit def graphVizMarshaller: ToEntityMarshaller[Graphviz] = PredefinedToEntityMarshallers.byteArrayMarshaller(`image/svg+xml`).compose { graph =>
 
@@ -52,7 +78,18 @@ trait EntityMarshalling {
     graph.render(Format.SVG).toString.getBytes
   }
 
-  implicit val recipeUnmarshaller: Unmarshaller[HttpEntity, javadsl.Recipe] = jsonCirceUnMarshaller[Recipe].map { recipe =>
+  implicit def jsonUnMarshaller[T : Decoder]: FromEntityUnmarshaller[T] = PredefinedFromEntityUnmarshallers.stringUnmarshaller.map { rawJson =>
+
+    val foo: Either[io.circe.Error, T] = io.circe.parser.parse(rawJson).flatMap(jsonAST => implicitly[Decoder[T]].decodeJson(jsonAST))
+
+    foo.right.get
+  }
+
+  implicit def jsonMarshaller[T : Encoder]: ToEntityMarshaller[T] = PredefinedToEntityMarshallers.stringMarshaller(`application/json`).compose { obj =>
+    implicitly[Encoder[T]].apply(obj).toString()
+  }
+
+  implicit val recipeUnmarshaller: Unmarshaller[HttpEntity, javadsl.Recipe] = jsonUnMarshaller[Recipe].map { recipe =>
 
     def parseType(schema: Schema): Type = schema.`type` match {
       case "string"  => CharArray
