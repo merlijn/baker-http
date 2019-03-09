@@ -15,6 +15,7 @@ val kryo =                      "com.esotericsoftware"       %  "kryo"          
 val kryoSerializers =           "de.javakaffee"              %  "kryo-serializers"                   % "0.41"
 val graphVizJava =              "guru.nidi"                  %  "graphviz-java"                      % "0.8.3"
 val scalaTags =                 "com.lihaoyi"                %% "scalatags"                          % "0.6.7"
+val betterFiles =               "com.github.pathikrit"       %% "better-files"                       % "3.7.1"
 
 lazy val sharedDeps = Def.setting(Seq(
   "io.circe" %%% "circe-core" % circeVersion,
@@ -37,7 +38,8 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     akkaStream,
     bakerRuntime,
     bakerCompiler,
-    graphVizJava
+    graphVizJava,
+    betterFiles
   ),
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value,
@@ -50,7 +52,8 @@ lazy val client = (project in file("client")).settings(commonSettings).settings(
   moduleName := "baker-http-client",
   scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "0.9.5"
+    "org.scala-js" %%% "scalajs-dom" % "0.9.5",
+    "com.lihaoyi"  %%% "scalatags"   % "0.6.7"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)

@@ -5,6 +5,7 @@ import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model.MediaTypes._
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
 import com.github.merlijn.baker.model.JsonCodecs._
+import com.github.merlijn.baker.model
 import com.github.merlijn.baker.model._
 import com.ing.baker.recipe.javadsl
 import com.ing.baker.runtime.core.{ProcessEvent, ProcessState, SensoryEventStatus}
@@ -13,7 +14,7 @@ import guru.nidi.graphviz.engine.Graphviz
 import io.circe._
 import scalatags.Text
 
-trait EntityMarshalling {
+object EntityMarshalling {
 
   implicit val scalaTagsMarshaller: ToEntityMarshaller[Text.TypedTag[String]] =
     PredefinedToEntityMarshallers.stringMarshaller(`text/html`).compose {
@@ -57,19 +58,12 @@ trait EntityMarshalling {
 
   implicit val processStateDecoder: Decoder[ProcessState] = deriveDecoder[ProcessState]
 
+  implicit val interactionDSLEncoder: Encoder[javadsl.Interaction] = JsonCodecs.interactionEncoder.contramap { i =>
+    model.Interaction(i.name, None, Seq.empty, Seq.empty, None)
+  }
+
   implicit val sensoryEventStatusEncoder: Encoder[SensoryEventStatus] = (a: SensoryEventStatus) => Json.fromString(a.name())
 
-  implicit val processStateUnMarshaller = jsonUnMarshaller[ProcessState]
-
-  implicit val eventUnmarshaller = jsonUnMarshaller[ProcessEvent]
-  implicit val eventMarshaller = jsonMarshaller[ProcessEvent]
-
-  implicit val eventListUnmarshaller = jsonUnMarshaller[List[ProcessEvent]]
-  implicit val eventListMarshaller = jsonMarshaller[List[ProcessEvent]]
-
-  implicit val ingredientsMarhaller = jsonMarshaller[Map[String, Value]]
-
-  implicit val sensoryEventStatusMarhaller = jsonMarshaller[SensoryEventStatus]
 
   implicit def graphVizMarshaller: ToEntityMarshaller[Graphviz] = PredefinedToEntityMarshallers.byteArrayMarshaller(`image/svg+xml`).compose { graph =>
 
@@ -80,14 +74,24 @@ trait EntityMarshalling {
 
   implicit def jsonUnMarshaller[T : Decoder]: FromEntityUnmarshaller[T] = PredefinedFromEntityUnmarshallers.stringUnmarshaller.map { rawJson =>
 
-    val foo: Either[io.circe.Error, T] = io.circe.parser.parse(rawJson).flatMap(jsonAST => implicitly[Decoder[T]].decodeJson(jsonAST))
-
-    foo.right.get
+    decodeUnsafe[T](rawJson)
   }
 
   implicit def jsonMarshaller[T : Encoder]: ToEntityMarshaller[T] = PredefinedToEntityMarshallers.stringMarshaller(`application/json`).compose { obj =>
     implicitly[Encoder[T]].apply(obj).toString()
   }
+
+  // akka marshalling
+
+  implicit val processStateUnMarshaller = jsonUnMarshaller[ProcessState]
+  implicit val eventUnmarshaller = jsonUnMarshaller[ProcessEvent]
+  implicit val eventMarshaller = jsonMarshaller[ProcessEvent]
+  implicit val eventListUnmarshaller = jsonUnMarshaller[List[ProcessEvent]]
+  implicit val eventListMarshaller = jsonMarshaller[List[ProcessEvent]]
+  implicit val recipeListMarshaller = jsonMarshaller[Seq[model.Recipe]]
+  implicit val InteractionSeqMarshaller = jsonMarshaller[Seq[model.Interaction]]
+  implicit val ingredientsMarhaller = jsonMarshaller[Map[String, Value]]
+  implicit val sensoryEventStatusMarhaller = jsonMarshaller[SensoryEventStatus]
 
   implicit val recipeUnmarshaller: Unmarshaller[HttpEntity, javadsl.Recipe] = jsonUnMarshaller[Recipe].map { recipe =>
 

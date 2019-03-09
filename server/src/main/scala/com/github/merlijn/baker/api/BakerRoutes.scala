@@ -2,19 +2,21 @@ package com.github.merlijn.baker.api
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.{Directives, Route}
-import com.github.merlijn.baker.model.SharedMessages
 import com.ing.baker.compiler.RecipeCompiler
 import com.ing.baker.recipe.javadsl
 import com.ing.baker.runtime.core.{Baker, ProcessEvent}
 import com.ing.baker.types.Value
 
 import scala.concurrent.duration._
+import EntityMarshalling._
 
-object BakerRoutes extends Directives with EntityMarshalling {
+object BakerRoutes extends Directives {
 
   implicit val timeout: FiniteDuration = 30 seconds
 
   val defaultEventConfirm = "receive"
+
+  val catalogue = new Catalogue()
 
   def apply(baker: Baker)(implicit actorSystem: ActorSystem): Route = {
 
@@ -22,17 +24,30 @@ object BakerRoutes extends Directives with EntityMarshalling {
       pathSingleSlash {
         get {
           complete {
-            Html.index("title", SharedMessages.itWorks)
+            Html.index("title", "It works!")
           }
         }
       } ~
         pathPrefix("assets" / Remaining) { file =>
           // optionally compresses the response with Gzip or Deflate
           // if the client accepts compressed responses
-          encodeResponse {
-            getFromResource("public/" + file)
+          encodeResponse { getFromResource("public/" + file) }
+        }
+    }
+
+    val catalogueRoutes = {
+      pathPrefix("catalogue") {
+        path("recipes") {
+          get {
+            complete(catalogue.allRecipes())
+          }
+        } ~
+        path("interactions") {
+          get {
+            complete(catalogue.allInteractions())
           }
         }
+      }
     }
 
     def processRoutes(processId: String): Route = {
@@ -81,53 +96,55 @@ object BakerRoutes extends Directives with EntityMarshalling {
         }
     }
 
-    def recipeRoutes(): Route = path("compile") {
-      post {
-        entity(as[javadsl.Recipe]) { recipe =>
+    def recipeRoutes(): Route =
+      path("compile") {
+        post {
+          entity(as[javadsl.Recipe]) { recipe =>
 
-          val compiledRecipe = RecipeCompiler.compileRecipe(recipe)
+            val compiledRecipe = RecipeCompiler.compileRecipe(recipe)
+
+            import guru.nidi.graphviz.engine.Graphviz
+            import guru.nidi.graphviz.parse.Parser
+
+            val graph = Parser.read(compiledRecipe.getRecipeVisualization)
+
+            complete(Graphviz.fromGraph(graph))
+          }
+        }
+      } ~ path("add") {
+        post {
+          entity(as[javadsl.Recipe]) { recipe =>
+
+            val compiledRecipe = RecipeCompiler.compileRecipe(recipe)
+
+            try {
+              println(s"Adding recipe called: ${compiledRecipe.name}")
+              val recipeId = baker.addRecipe(compiledRecipe)
+              complete(recipeId)
+            } catch {
+              case e: Exception => {
+                println(s"Exception when adding recipe: ${e.getMessage}")
+                throw e
+              }
+            }
+          }
+        }
+      } ~ path("svg" / Segment) { recipeId =>
+
+        get {
 
           import guru.nidi.graphviz.engine.Graphviz
           import guru.nidi.graphviz.parse.Parser
 
-          val graph = Parser.read(compiledRecipe.getRecipeVisualization)
+          val recipe = baker.getRecipe(recipeId)
+          val graph = Parser.read(recipe.getRecipeVisualization)
 
           complete(Graphviz.fromGraph(graph))
         }
       }
-    } ~ path("add") {
-      post {
-        entity(as[javadsl.Recipe]) { recipe =>
-
-          val compiledRecipe = RecipeCompiler.compileRecipe(recipe)
-
-          try {
-            println(s"Adding recipe called: ${compiledRecipe.name}")
-            val recipeId = baker.addRecipe(compiledRecipe)
-            complete(recipeId)
-          } catch {
-            case e: Exception => {
-              println(s"Exception when adding recipe: ${e.getMessage}")
-              throw e
-            }
-          }
-        }
-      }
-    } ~ path("svg" / Segment) { recipeId =>
-
-      get {
-
-        import guru.nidi.graphviz.engine.Graphviz
-        import guru.nidi.graphviz.parse.Parser
-
-        val recipe = baker.getRecipe(recipeId)
-        val graph = Parser.read(recipe.getRecipeVisualization)
-
-        complete(Graphviz.fromGraph(graph))
-      }
-    }
 
       scalaJSRoutes ~
+        catalogueRoutes ~
         pathPrefix("recipe") { recipeRoutes() } ~
         pathPrefix("process" / Segment) { processRoutes _ }
 

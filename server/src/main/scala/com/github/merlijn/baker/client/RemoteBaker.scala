@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.stream.{ActorMaterializer, Materializer}
-import com.github.merlijn.baker.api.EntityMarshalling
+import com.github.merlijn.baker.api.EntityMarshalling._
 import com.github.merlijn.baker.client.RemoteBaker._
 import com.ing.baker.runtime.core.{ProcessEvent, ProcessState}
 import com.ing.baker.types.Value
@@ -44,7 +44,7 @@ object RemoteBaker  {
   }
 }
 
-class RemoteBaker(val host: String, val port: Int)(implicit val actorSystem: ActorSystem) extends EntityMarshalling {
+class RemoteBaker(val host: String, val port: Int)(implicit val actorSystem: ActorSystem) {
 
   val baseUri = s"http://$host:$port"
 

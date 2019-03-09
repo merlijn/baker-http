@@ -13,10 +13,8 @@ object Html {
         tags2.title(_title)
       ),
       body(
-        ul(
-          li("Akka HTTP shouts out: ", em(message)),
-          li("Scala.js shouts out: ", em(id := "scalajsShoutOut"))
-        ),
+        h1("Hello"),
+        div(id := "scalaJsContent"),
         raw(
           scalajs.html.scripts(
             "baker-http-client",
