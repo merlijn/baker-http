@@ -3,7 +3,11 @@ package com.github.merlijn.baker.model
 import io.circe.{ArrayEncoder, Decoder, Encoder, Json}
 import io.circe.generic.semiauto._
 
-object JsonCodecs {
+object JsonCodecs extends JsonCodecs {
+
+}
+
+trait JsonCodecs {
 
   implicit val eventDecoder: Decoder[Event] = deriveDecoder
   implicit val eventEncoder: Encoder[Event] = deriveEncoder

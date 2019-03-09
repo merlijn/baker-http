@@ -6,7 +6,10 @@ import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.stream.{ActorMaterializer, Materializer}
+
+import com.github.merlijn.baker.api.DSLJsonCodecs._
 import com.github.merlijn.baker.api.EntityMarshalling._
+
 import com.github.merlijn.baker.client.RemoteBaker._
 import com.ing.baker.runtime.core.{ProcessEvent, ProcessState}
 import com.ing.baker.types.Value

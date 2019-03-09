@@ -8,6 +8,7 @@ import com.ing.baker.runtime.core.{Baker, ProcessEvent}
 import com.ing.baker.types.Value
 
 import scala.concurrent.duration._
+import DSLJsonCodecs._
 import EntityMarshalling._
 
 object BakerRoutes extends Directives {
