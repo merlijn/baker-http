@@ -25,14 +25,14 @@ object BakerRoutes extends Directives {
       pathSingleSlash {
         get {
           complete {
-            Html.index("title", "It works!")
+            Html.index
           }
         }
       } ~
-        pathPrefix("assets" / Remaining) { file =>
-          // optionally compresses the response with Gzip or Deflate
-          // if the client accepts compressed responses
-          encodeResponse { getFromResource("public/" + file) }
+        pathPrefix("js" / Remaining) { file =>
+          encodeResponse { getFromResource("js/" + file) }
+        } ~ pathPrefix("resources" / Remaining) { file =>
+          encodeResponse { getFromResource(file) }
         }
     }
 

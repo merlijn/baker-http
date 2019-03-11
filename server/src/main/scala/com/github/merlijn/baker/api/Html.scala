@@ -6,20 +6,23 @@ import scalatags.Text.tags2
 
 object Html {
 
-  def index(_title: String, message: String): Text.TypedTag[String] = {
+  val index: Text.TypedTag[String] = {
 
     html(
       head(
-        tags2.title(_title)
+//        link(rel := "stylesheet", href := "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"),
+//        link(rel := "stylesheet", href := "https://fonts.googleapis.com/icon?family=Material+Icons"),
+//        script(src := "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"),
+        link(rel := "stylesheet", href := "/resources/app.css"),
+        tags2.title("title")
       ),
-      body(
-        h1("Hello"),
+      body(`class` := "page")(
         div(id := "scalaJsContent"),
         raw(
           scalajs.html.scripts(
             "baker-http-client",
-            name => s"/assets/$name",
-            name => getClass.getResource(s"/public/$name") != null)
+            name => s"/js/$name",
+            name => getClass.getResource(s"/js/$name") != null)
           .body.trim)
       )
     )

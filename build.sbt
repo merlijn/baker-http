@@ -10,9 +10,6 @@ val bakerCompiler =             "com.ing.baker"              %% "baker-compiler"
 val akkaStream =                "com.typesafe.akka"          %% "akka-stream"                        % akkaVersion
 val akkaHttp =                  "com.typesafe.akka"          %% "akka-http"                          % "10.1.1"
 val scalaJsScripts =            "com.vmunier"                %% "scalajs-scripts"                    % "1.1.2"
-val liftJson =                  "net.liftweb"                %% "lift-json"                          % "3.3.0"
-val kryo =                      "com.esotericsoftware"       %  "kryo"                               % "4.0.0"
-val kryoSerializers =           "de.javakaffee"              %  "kryo-serializers"                   % "0.41"
 val graphVizJava =              "guru.nidi"                  %  "graphviz-java"                      % "0.8.3"
 val scalaTags =                 "com.lihaoyi"                %% "scalatags"                          % "0.6.7"
 val betterFiles =               "com.github.pathikrit"       %% "better-files"                       % "3.7.1"
@@ -41,7 +38,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     graphVizJava,
     betterFiles
   ),
-  WebKeys.packagePrefix in Assets := "public/",
+  WebKeys.packagePrefix in Assets := "js/",
   managedClasspath in Runtime += (packageBin in Assets).value,
   // Compile the project before generating Eclipse files, so that generated .scala or .class files for Twirl templates are present
 //  EclipseKeys.preTasks := Seq(compile in Compile)
@@ -53,7 +50,7 @@ lazy val client = (project in file("client")).settings(commonSettings).settings(
   scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.5",
-    "com.lihaoyi"  %%% "scalatags"   % "0.6.7"
+    "in.nvilla" %%% "monadic-html" % "0.4.0-RC1"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)
