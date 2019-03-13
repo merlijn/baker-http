@@ -2,7 +2,7 @@
   "name":"webshop",
   "sensoryEvents":[
     {
-      "name":"com.example.webhop.OrderPlaced",
+      "name":"com.example.webshop.OrderPlaced",
       "providedIngredients":[
         {
           "name":"order",
@@ -13,7 +13,7 @@
       ]
     },
     {
-      "name":"com.example.webhop.CustomerInfoReceived",
+      "name":"com.example.webshop.CustomerInfoReceived",
       "providedIngredients":[
         {
           "name":"customerInfo",
@@ -37,7 +37,7 @@
   ],
   "interactions":[
     {
-      "name":"com.example.webhop.ValidateOrder",
+      "name":"com.example.webshop.ValidateOrder",
       "input":[
         {
           "name":"order",

@@ -1,10 +1,7 @@
 package com.github.merlijn.baker.api
 
-import com.github.merlijn.baker.model.{Interaction, Recipe}
-
-import com.github.merlijn.baker.api.EntityMarshalling._
-
 import com.github.merlijn.baker.model.JsonCodecs._
+import com.github.merlijn.baker.model.{Interaction, Recipe}
 
 class Catalogue {
 
@@ -12,7 +9,7 @@ class Catalogue {
 
   def allRecipes(): Seq[Recipe] = {
 
-    val is = classOf[Catalogue].getClassLoader().getResourceAsStream("./catalogue/recipes/webshop.json")
+    val is = classOf[Catalogue].getResourceAsStream("/catalogue/recipes/webshop.json")
 
     val json = scala.io.Source.fromInputStream(is).mkString
 

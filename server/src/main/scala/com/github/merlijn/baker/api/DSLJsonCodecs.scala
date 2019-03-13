@@ -28,6 +28,20 @@ object DSLJsonCodecs extends model.JsonCodecs {
       throw new IllegalArgumentException("Invalid json")
   }
 
+  def parseSchema(schema: Schema): Type = schema.`type` match {
+    case "string"  => CharArray
+    case "integer" => Int64
+    case "boolean" => Bool
+    case "object" => {
+
+      val fields = schema.properties.get.map {
+        case (name, schema) => RecordField(name, parseSchema(schema))
+      }.toSeq
+
+      RecordType(fields)
+    }
+  }
+
   implicit val valueDecoder: Decoder[Value] = (c: HCursor) => Right(parseJson(c.value))
   implicit val valueEncoder: Encoder[Value] = {
     case PrimitiveValue(b: Boolean) => Json.fromBoolean(b)
@@ -50,22 +64,9 @@ object DSLJsonCodecs extends model.JsonCodecs {
   }
 
   implicit val recipeDSLDecoder: Decoder[javadsl.Recipe] = JsonCodecs.recipeDecoder.emap { recipe =>
-    def parseType(schema: Schema): Type = schema.`type` match {
-      case "string"  => CharArray
-      case "integer" => Int64
-      case "boolean" => Bool
-      case "object" => {
-
-        val fields = schema.properties.get.map {
-          case (name, schema) => RecordField(name, parseType(schema))
-        }.toSeq
-
-        RecordType(fields)
-      }
-    }
 
     def parseIngredient(i: Ingredient): javadsl.Ingredient = {
-      javadsl.Ingredient(i.name, parseType(i.schema))
+      javadsl.Ingredient(i.name, parseSchema(i.schema))
     }
 
     def parseEvent(e: Event): javadsl.Event = {

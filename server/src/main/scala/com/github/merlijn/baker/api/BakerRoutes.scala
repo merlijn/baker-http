@@ -15,7 +15,7 @@ object BakerRoutes extends Directives {
 
   implicit val timeout: FiniteDuration = 30 seconds
 
-  val defaultEventConfirm = "receive"
+  val defaultEventConfirm = "received"
 
   val catalogue = new Catalogue()
 
@@ -51,49 +51,46 @@ object BakerRoutes extends Directives {
       }
     }
 
-    def processRoutes(processId: String): Route = {
+    def processRoutes(): Route = {
 
-      path("event") {
-        post {
-          (entity(as[ProcessEvent]) & parameter('confirm.as[String] ?)) { (event, confirm) =>
-
-            val sensoryEventStatus = confirm.getOrElse(defaultEventConfirm) match {
-              case "received" => baker.fireEventAsync(processId, event).confirmReceived()
-              case "completed" => baker.fireEventAsync(processId, event).confirmCompleted()
-              case other => throw new IllegalArgumentException(s"Unsupported confirm type: $other")
-            }
-
-            complete(sensoryEventStatus)
-          }
-        }
-      } ~
-        path("events") {
-          get {
-            val events = baker.getEvents(processId).toList
-            complete(events)
-          }
-        } ~
-        path(Segment / "create-process") { recipeId =>
+        path("create" / Segment) { recipeId =>
           post {
-            val processState = baker.createProcess(recipeId, processId)
+            val processState = baker.createProcess(recipeId, java.util.UUID.randomUUID().toString)
             complete(processState.processId)
           }
-        } ~
-        path("ingredients") {
-          get {
+        }  ~ pathPrefix("by_id" / Segment) { processId =>
 
-            val ingredients: Map[String, Value] = baker.getIngredients(processId)
+          path("fire_event") {
+            post {
+              (entity(as[ProcessEvent]) & parameter('confirm.as[String] ?)) { (event, confirm) =>
 
-            complete(ingredients)
-          }
-        } ~
-        path("visual_state") {
-          get {
+                val sensoryEventStatus = confirm.getOrElse(defaultEventConfirm) match {
+                  case "received"  => baker.fireEventAsync(processId, event).confirmReceived()
+                  case "completed" => baker.fireEventAsync(processId, event).confirmCompleted()
+                  case other => throw new IllegalArgumentException(s"Unsupported confirm type: $other")
+                }
 
-            val visualState = baker.getVisualState(processId)
+                complete(sensoryEventStatus)
+              }
+            }
+          } ~ path("events") {
+            get {
+              complete(baker.getEvents(processId).toList)
+            }
+          } ~
+            path("ingredients") {
+              get {
 
-            complete(visualState)
-          }
+                val ingredients: Map[String, Value] = baker.getIngredients(processId)
+
+                complete(ingredients)
+              }
+            } ~
+            path("visual_state") {
+              get {
+                complete(baker.getVisualState(processId))
+              }
+            }
         }
     }
 
@@ -119,8 +116,7 @@ object BakerRoutes extends Directives {
             val compiledRecipe = RecipeCompiler.compileRecipe(recipe)
 
             try {
-              println(s"Adding recipe called: ${compiledRecipe.name}")
-              val recipeId = baker.addRecipe(compiledRecipe)
+              val recipeId = baker.addRecipe(compiledRecipe, allowMissingImplementations = true)
               complete(recipeId)
             } catch {
               case e: Exception => {
@@ -147,7 +143,7 @@ object BakerRoutes extends Directives {
       scalaJSRoutes ~
         catalogueRoutes ~
         pathPrefix("recipe") { recipeRoutes() } ~
-        pathPrefix("process" / Segment) { processRoutes _ }
+        pathPrefix("process") { processRoutes() }
 
   }
 }

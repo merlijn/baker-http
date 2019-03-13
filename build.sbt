@@ -13,6 +13,7 @@ val scalaJsScripts =            "com.vmunier"                %% "scalajs-scripts
 val graphVizJava =              "guru.nidi"                  %  "graphviz-java"                      % "0.8.3"
 val scalaTags =                 "com.lihaoyi"                %% "scalatags"                          % "0.6.7"
 val betterFiles =               "com.github.pathikrit"       %% "better-files"                       % "3.7.1"
+val logback =                   "ch.qos.logback"             %  "logback-classic"                    % "1.2.2"
 
 lazy val sharedDeps = Def.setting(Seq(
   "io.circe" %%% "circe-core" % circeVersion,
@@ -36,7 +37,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     bakerRuntime,
     bakerCompiler,
     graphVizJava,
-    betterFiles
+    logback
   ),
   WebKeys.packagePrefix in Assets := "js/",
   managedClasspath in Runtime += (packageBin in Assets).value,

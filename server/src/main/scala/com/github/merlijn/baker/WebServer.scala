@@ -13,7 +13,7 @@ object WebServer extends App {
 
     val config = system.settings.config
 
-    val baker = new Baker()(system)
+    val baker = Baker(system)
     val interface = config.getString("http.interface")
     val port = config.getInt("http.port")
 
@@ -23,3 +23,4 @@ object WebServer extends App {
 
     println(s"Server online at http://$interface:$port")
 }
+
