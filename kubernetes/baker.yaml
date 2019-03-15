@@ -1,0 +1,80 @@
+# Service abstraction
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: baker
+  name: baker
+spec:
+  clusterIP: None
+  ports:
+    - port: 8080
+  selector:
+    service: baker
+---
+# Deployment
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    service: baker
+  name: baker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      service: baker
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+
+  template:
+    metadata:
+      labels:
+        service: baker
+        actorSystemName: baker
+    spec:
+      containers:
+        - name: baker
+          image: baker-http-server:1.0.0-SNAPSHOT
+          # Remove for a real project, the image is picked up locally for the integration test
+          imagePullPolicy: Never
+          #health
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: management
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: management
+          #health
+          ports:
+            # application port
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            # akka remoting
+            - name: remoting
+              containerPort: 2552
+              protocol: TCP
+            # akka-management bootstrap
+            - containerPort: 8558
+              protocol: TCP
+              # when contact-point-discovery.port-name is set for cluster bootstrap,
+              # the management port must be named accordingly:
+              name: management
+          env:
+            - name: APPLICATION_CONF
+              value: kubernetes.conf
+            # The Kubernetes API discovery will use this service name to look for
+            # nodes with this value in the 'app' label.
+            # This can be customized with the 'pod-label-selector' setting.
+            - name: AKKA_CLUSTER_BOOTSTRAP_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: "metadata.labels['service']"
+#deployment
