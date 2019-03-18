@@ -35,8 +35,10 @@ object WebServer extends App {
     // this bootstraps the cluster
     config.getString("akka.actor.provider") match {
         case "cluster" | "akka.cluster.ClusterActorRefProvider" =>
+            log.info("Starting akka management")
             AkkaManagement(system).start()
             if (config.getList("akka.cluster.seed-nodes").isEmpty) {
+                log.info("Bootstrapping the akka cluster")
                 ClusterBootstrap(system).start()
             }
         case _ =>

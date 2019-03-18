@@ -9,7 +9,8 @@ val bakerCompiler =             "com.ing.baker"              %% "baker-compiler"
 
 val akkaStream =                "com.typesafe.akka"          %% "akka-stream"                        % akkaVersion
 val akkaDiscovery =             "com.typesafe.akka"          %% "akka-discovery"                     % akkaVersion
-val akkaManagement =            "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % "1.0.0-RC4"
+val akkaManagement =            "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % "1.0.0"
+val akkaDiscoveyKubernetes =    "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api"    % "1.0.0"
 val akkaHttp =                  "com.typesafe.akka"          %% "akka-http"                          % "10.1.1"
 val scalaJsScripts =            "com.vmunier"                %% "scalajs-scripts"                    % "1.1.2"
 val graphVizJava =              "guru.nidi"                  %  "graphviz-java"                      % "0.8.3"
@@ -37,6 +38,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     akkaHttp,
     akkaStream,
     akkaDiscovery,
+    akkaDiscoveyKubernetes,
     akkaManagement,
     bakerRuntime,
     bakerCompiler,
