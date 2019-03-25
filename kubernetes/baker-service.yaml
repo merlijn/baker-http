@@ -1,0 +1,13 @@
+# Service abstraction
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: baker
+  name: baker
+spec:
+  clusterIP: None
+  ports:
+    - port: 8080
+  selector:
+    service: baker
