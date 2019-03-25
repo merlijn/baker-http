@@ -1,53 +1,53 @@
 <configuration scan="true" scanPeriod="60 seconds">
 
-    <!--<appender name="ELASTIC" class="com.internetitem.logback.elasticsearch.ElasticsearchAppender">-->
-        <!--<url>http://yourserver/_bulk</url>-->
-        <!--<index>logs-%date{yyyy-MM-dd}</index>-->
-        <!--<type>tester</type>-->
-        <!--<loggerName>es-logger</loggerName> &lt;!&ndash; optional &ndash;&gt;-->
-        <!--<errorLoggerName>es-error-logger</errorLoggerName> &lt;!&ndash; optional &ndash;&gt;-->
-        <!--<connectTimeout>30000</connectTimeout> &lt;!&ndash; optional (in ms, default 30000) &ndash;&gt;-->
-        <!--<errorsToStderr>false</errorsToStderr> &lt;!&ndash; optional (default false) &ndash;&gt;-->
-        <!--<includeCallerData>false</includeCallerData> &lt;!&ndash; optional (default false) &ndash;&gt;-->
-        <!--<logsToStderr>false</logsToStderr> &lt;!&ndash; optional (default false) &ndash;&gt;-->
-        <!--<maxQueueSize>104857600</maxQueueSize> &lt;!&ndash; optional (default 104857600) &ndash;&gt;-->
-        <!--<maxRetries>3</maxRetries> &lt;!&ndash; optional (default 3) &ndash;&gt;-->
-        <!--<readTimeout>30000</readTimeout> &lt;!&ndash; optional (in ms, default 30000) &ndash;&gt;-->
-        <!--<sleepTime>250</sleepTime> &lt;!&ndash; optional (in ms, default 250) &ndash;&gt;-->
-        <!--<rawJsonMessage>false</rawJsonMessage> &lt;!&ndash; optional (default false) &ndash;&gt;-->
-        <!--<includeMdc>false</includeMdc> &lt;!&ndash; optional (default false) &ndash;&gt;-->
-        <!--<maxMessageSize>100</maxMessageSize> &lt;!&ndash; optional (default -1 &ndash;&gt;-->
-        <!--<authentication class="com.internetitem.logback.elasticsearch.config.BasicAuthentication" /> &lt;!&ndash; optional &ndash;&gt;-->
-        <!--<properties>-->
-            <!--<property>-->
-                <!--<name>host</name>-->
-                <!--<value>${HOSTNAME}</value>-->
-                <!--<allowEmpty>false</allowEmpty>-->
-            <!--</property>-->
-            <!--<property>-->
-                <!--<name>severity</name>-->
-                <!--<value>%level</value>-->
-            <!--</property>-->
-            <!--<property>-->
-                <!--<name>thread</name>-->
-                <!--<value>%thread</value>-->
-            <!--</property>-->
-            <!--<property>-->
-                <!--<name>stacktrace</name>-->
-                <!--<value>%ex</value>-->
-            <!--</property>-->
-            <!--<property>-->
-                <!--<name>logger</name>-->
-                <!--<value>%logger</value>-->
-            <!--</property>-->
-        <!--</properties>-->
-        <!--<headers>-->
-            <!--<header>-->
-                <!--<name>Content-Type</name>-->
-                <!--<value>application/json</value>-->
-            <!--</header>-->
-        <!--</headers>-->
-    <!--</appender>-->
+    <appender name="ELASTIC" class="com.internetitem.logback.elasticsearch.ElasticsearchAppender">
+        <url>http://localhost:9200/_bulk</url>
+        <index>logs-%date{yyyy-MM-dd}</index>
+        <type>tester</type>
+        <loggerName>es-logger</loggerName> <!-- optional -->
+        <errorLoggerName>es-error-logger</errorLoggerName> <!-- optional -->
+        <connectTimeout>30000</connectTimeout> <!-- optional (in ms, default 30000) -->
+        <errorsToStderr>false</errorsToStderr> <!-- optional (default false) -->
+        <includeCallerData>false</includeCallerData> <!-- optional (default false) -->
+        <logsToStderr>false</logsToStderr> <!-- optional (default false) -->
+        <maxQueueSize>104857600</maxQueueSize> <!-- optional (default 104857600) -->
+        <maxRetries>3</maxRetries> <!-- optional (default 3) -->
+        <readTimeout>30000</readTimeout> <!-- optional (in ms, default 30000) -->
+        <sleepTime>250</sleepTime> <!-- optional (in ms, default 250) -->
+        <rawJsonMessage>false</rawJsonMessage> <!-- optional (default false) -->
+        <includeMdc>false</includeMdc> <!-- optional (default false) -->
+        <maxMessageSize>100</maxMessageSize> <!-- optional (default -1 -->
+        <authentication class="com.internetitem.logback.elasticsearch.config.BasicAuthentication" /> <!-- optional -->
+        <properties>
+            <property>
+                <name>host</name>
+                <value>${HOSTNAME}</value>
+                <allowEmpty>false</allowEmpty>
+            </property>
+            <property>
+                <name>severity</name>
+                <value>%level</value>
+            </property>
+            <property>
+                <name>thread</name>
+                <value>%thread</value>
+            </property>
+            <property>
+                <name>stacktrace</name>
+                <value>%ex</value>
+            </property>
+            <property>
+                <name>logger</name>
+                <value>%logger</value>
+            </property>
+        </properties>
+        <headers>
+            <header>
+                <name>Content-Type</name>
+                <value>application/json</value>
+            </header>
+        </headers>
+    </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>baker.log</file>
@@ -83,7 +83,7 @@
 
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
-        <!--<appender-ref ref="FILE" />-->
+        <appender-ref ref="ELASTIC" />
     </root>
 
     <logger name="es-error-logger" level="INFO" additivity="false">

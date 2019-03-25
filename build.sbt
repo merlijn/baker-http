@@ -13,6 +13,7 @@ val akkaManagementCluster =     "com.lightbend.akka.management" %% "akka-managem
 val akkaClusterBoostrap =       "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % "1.0.0"
 val akkaDiscoveyKubernetes =    "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api"      % "1.0.0"
 val akkaPersistenceCassandra =  "com.typesafe.akka"          %% "akka-persistence-cassandra"         % "0.93"
+val logbackElasticSearch =      "com.internetitem"           % "logback-elasticsearch-appender"      % "1.6"
 val akkaHttp =                  "com.typesafe.akka"          %% "akka-http"                          % "10.1.1"
 val scalaJsScripts =            "com.vmunier"                %% "scalajs-scripts"                    % "1.1.2"
 val graphVizJava =              "guru.nidi"                  %  "graphviz-java"                      % "0.8.3"
@@ -44,6 +45,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     akkaClusterBoostrap,
     akkaManagementCluster,
     akkaPersistenceCassandra,
+    logbackElasticSearch,
     bakerRuntime,
     bakerCompiler,
     graphVizJava,
