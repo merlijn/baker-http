@@ -5,6 +5,7 @@ metadata:
   labels:
     app: baker
   name: baker
+  namespace: development
 spec:
   replicas: 3
   selector:
