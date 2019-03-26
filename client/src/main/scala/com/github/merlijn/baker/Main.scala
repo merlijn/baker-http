@@ -19,16 +19,16 @@ object Main {
     val noContent: Rx[Elem] = Var(<div></div>)
     val page: Var[String] = Var("recipes")
 
-    val interactionVar: Var[Seq[Interaction]] = Var(Seq.empty)
+    val interactions: Var[Seq[Interaction]] = Var(Seq.empty)
 
     def navigate(dest: String): Unit = dest match {
-      case "interactions" =>
+      case "catalogue/interactions" =>
 
         dom.ext.Ajax.get("/catalogue/interactions").onComplete {
           case Success(xhr) =>
 
             val json = xhr.responseText
-            interactionVar := decodeUnsafe[Seq[Interaction]](json)
+            interactions := decodeUnsafe[Seq[Interaction]](json)
             page := dest
 
           case Failure(e) =>
@@ -38,28 +38,50 @@ object Main {
         page := dest
     }
 
+    // back, forward navigation callback
+    dom.window.onpopstate = popState => {
+
+      val split = dom.window.location.href.split('#').tail.headOption match {
+        case None       => navigate("")
+        case Some(page) => navigate(page)
+      }
+
+      println(dom.window.location.href)
+    }
+
+    def designPage(subPage: String) = {
+      <div>
+        <div class="span3">
+          { sideBar(subPage) }
+        </div>
+        <div class="span9">
+          <div class="row-fluid">
+            {
+              if (subPage == "interactions")
+                interactions.map(interactionsTable)
+              else
+                noContent
+            }
+          </div>
+        </div>
+      </div>
+    }
+
     val layout =
       <div>
-        { navBar }
+        {
+          page.map(p => topNavigationBar(p.split('/').head))
+        }
         <div class="container-fluid">
           <div class="row-fluid">
             {
               page.map { name =>
-                <div>
-                <div class="span3">
-                  { sideBar(name, navigate _) }
-                </div>
-                <div class="span9">
-                  <div class="row-fluid">
-                    {
-                      if (name == "interactions")
-                        interactionVar.map(renderInteraction)
-                      else
-                        noContent
-                    }
-                  </div>
-                </div>
-                </div>
+
+                val subPage = name.split('/').tail.headOption.getOrElse("")
+
+//                println("subpage: " + subPage)
+
+                designPage(subPage)
               }
             }
           </div>

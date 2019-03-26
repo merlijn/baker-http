@@ -6,53 +6,54 @@ object Components {
 
   import mhtml._
 
-  def renderInteraction(interactions: Seq[Interaction]) =
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">name</th>
-          <th scope="col">input</th>
-          <th scope="col">output</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          interactions.map { i =>
-            <tr>
-              <td>{ i.name }</td>
-              <td>{ i.input.map(_.name).mkString(",") } </td>
-              <td>{ i.output.map(_.name).mkString(",") } </td>
-            </tr>
+  def interactionsTable(interactions: Seq[Interaction]) =
+    <div>
+      <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">name</th>
+            <th scope="col">input</th>
+            <th scope="col">output</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            interactions.map { i =>
+              <tr>
+                <td><a href = { s"#catalogue/interactions/${i.name}" }>{ i.name }</a></td>
+                <td>{ i.input.map(_.name).mkString(",") } </td>
+                <td>{ i.output.map(_.name).mkString(",") } </td>
+              </tr>
+            }
           }
-        }
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
 
-  def foo(): Unit = { }
-
-  def sideBar(active: String, navFn: String => Unit) =
+  def sideBar(active: String) =
     <div class="well sidebar-nav">
-      <p><a href="#" class="btn btn-primary btn-large">Create new recipe</a></p>
       <ul class="nav nav-list">
         <li class = "nav-header">Catalogue</li>
-        { sideBarButton("Recipes", active, navFn) }
-        { sideBarButton("Interactions", active, navFn) }
-        { sideBarButton("Events", active, navFn) }
+        { sideBarButton("Recipes", active) }
+        { sideBarButton("Interactions", active) }
+        { sideBarButton("Events", active) }
       </ul>
     </div>
 
-  def sideBarButton(label: String, active: String, navigateFn: String => Unit) = {
+  def sideBarButton(label: String, active: String) = {
 
     val name = label.toLowerCase()
     val clazz = if (active.equals(name)) "active" else "inactive"
-    val href = s"#design/$name"
+    val href = s"#catalogue/$name"
 
-    <li class = { clazz } >
-      <a href = { href } onclick = { () => navigateFn(name) } >{ name }</a>
-    </li>
+    <li class = { clazz } ><a href = { href }>{ name }</a></li>
   }
 
-  val navBar =
+  def topNavigationBar(activePage: String) =
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container-fluid">
@@ -61,13 +62,13 @@ object Components {
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="#">Baker</a>
+          <a class="brand" href="#catalogue">Baker</a>
           <div class="nav-collapse collapse">
             <p class="navbar-text pull-right">
               Logged in as <a href="#" class="navbar-link">Anonymous</a>
             </p>
             <ul class="nav">
-              <li class="active"><a href="#">Design</a></li>
+              <li class="active"><a href="#catalogue">Catalogue</a></li>
               <li><a href="#interact">Interact</a></li>
               <li><a href="#monitor">Monitor</a></li>
             </ul>
