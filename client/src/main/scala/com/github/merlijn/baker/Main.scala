@@ -5,6 +5,9 @@ import com.github.merlijn.baker.model.JsonCodecs._
 
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.util.{Failure, Success}
+import Components._
+
+import scala.xml.Elem
 
 object Main {
 
@@ -13,40 +16,62 @@ object Main {
     import mhtml._
     import org.scalajs.dom
 
-    val interactionVar: Var[Interaction] = Var(Interaction("", None, Seq.empty, Seq.empty, None))
+    val noContent: Rx[Elem] = Var(<div></div>)
+    val page: Var[String] = Var("recipes")
 
-    def getInteractions() = {
-      dom.ext.Ajax.get("/catalogue/interactions").onComplete {
-        case Success(xhr) =>
+    val interactionVar: Var[Seq[Interaction]] = Var(Seq.empty)
 
-          val json = xhr.responseText
-          val interactions = decodeUnsafe[Seq[Interaction]](json)
+    def navigate(dest: String): Unit = dest match {
+      case "interactions" =>
 
-          interactionVar := interactions(0)
+        dom.ext.Ajax.get("/catalogue/interactions").onComplete {
+          case Success(xhr) =>
 
-        case Failure(e) => println(e.toString)
-      }
+            val json = xhr.responseText
+            interactionVar := decodeUnsafe[Seq[Interaction]](json)
+            page := dest
+
+          case Failure(e) =>
+            System.err.println(e.toString)
+        }
+      case other =>
+        page := dest
     }
 
-    val component =
+    val layout =
       <div>
-        <button onclick = { () => getInteractions() }>Click me!</button>
-        <table>
-          <tr>
-            <th>name</th>
-            <th>input</th>
-            <th>output</th>
-          </tr>
-          <tr>
-            <td>{ interactionVar.map(_.name) }</td>
-            <td>{ interactionVar.map{_.input.map(_.name).mkString(",") } } </td>
-            <td>{ interactionVar.map{_.output.map(_.name).mkString(",") } } </td>
-          </tr>
-        </table>
+        { navBar }
+        <div class="container-fluid">
+          <div class="row-fluid">
+            {
+              page.map { name =>
+                <div>
+                <div class="span3">
+                  { sideBar(name, navigate _) }
+                </div>
+                <div class="span9">
+                  <div class="row-fluid">
+                    {
+                      if (name == "interactions")
+                        interactionVar.map(renderInteraction)
+                      else
+                        noContent
+                    }
+                  </div>
+                </div>
+                </div>
+              }
+            }
+          </div>
+          <hr />
+          <footer>
+            <p>Company 2013</p>
+          </footer>
+        </div>
       </div>
 
     val div = dom.document.getElementById("scalaJsContent")
 
-    mount(div, component)
+    mount(div, layout)
   }
 }

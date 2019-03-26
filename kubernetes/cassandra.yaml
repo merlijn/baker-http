@@ -90,7 +90,7 @@ spec:
     spec:
       accessModes: [ "ReadWriteOnce" ]
       # When deploying to Google, Azure or AWS you should configure the storage class, this picks the default
-      storageClassName: hostpath
+#      storageClassName: hostpath
       resources:
         requests:
           storage: 1Gi

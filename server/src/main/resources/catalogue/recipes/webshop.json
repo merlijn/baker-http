@@ -56,6 +56,23 @@
           "providedIngredients":[]
         }
       ]
+    },
+    {
+      "name":"com.example.webshop.ManufactureGoods",
+      "input":[
+        {
+          "name":"order",
+          "schema":{
+            "type":"string"
+          }
+        }
+      ],
+      "output":[
+        {
+          "name":"com.example.webshop.ManufactureGoods.GoodsManufactured",
+          "providedIngredients":[]
+        }
+      ]
     }
   ]
 }
