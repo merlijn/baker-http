@@ -6,6 +6,28 @@ object Components {
 
   import mhtml._
 
+  object Menu {
+
+    def apply(page: String, items: Seq[String], activeItem: String) =
+      <div class="well sidebar-nav">
+        <ul class="nav nav-list">
+          <li class = "nav-header">Catalogue</li>
+          {
+            items.map { name => menuItem(page, name, activeItem) }
+          }
+        </ul>
+      </div>
+
+    def menuItem(page: String, label: String, active: String) = {
+
+      val name = label.toLowerCase()
+      val clazz = if (active.equals(name)) Some("active") else None
+      val href = s"#$page/$name"
+
+      <li class = { clazz } ><a href = { href }>{ name }</a></li>
+    }
+  }
+
   def interactionsTable(interactions: Seq[Interaction]) =
     <div>
       <form class="form-inline my-2 my-lg-0">
@@ -34,26 +56,10 @@ object Components {
       </table>
     </div>
 
-  def sideBar(active: String) =
-    <div class="well sidebar-nav">
-      <ul class="nav nav-list">
-        <li class = "nav-header">Catalogue</li>
-        { sideBarButton("Recipes", active) }
-        { sideBarButton("Interactions", active) }
-        { sideBarButton("Events", active) }
-      </ul>
-    </div>
+  def topNavigationBar(activePage: String) = {
 
-  def sideBarButton(label: String, active: String) = {
+    val items = Seq("Catalogue", "Interact", "Monitor")
 
-    val name = label.toLowerCase()
-    val clazz = if (active.equals(name)) "active" else "inactive"
-    val href = s"#catalogue/$name"
-
-    <li class = { clazz } ><a href = { href }>{ name }</a></li>
-  }
-
-  def topNavigationBar(activePage: String) =
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container-fluid">
@@ -68,12 +74,19 @@ object Components {
               Logged in as <a href="#" class="navbar-link">Anonymous</a>
             </p>
             <ul class="nav">
-              <li class="active"><a href="#catalogue">Catalogue</a></li>
-              <li><a href="#interact">Interact</a></li>
-              <li><a href="#monitor">Monitor</a></li>
+              {
+                items.map { i =>
+
+                  val clazz = if (activePage.equals(i.toLowerCase)) Some("active") else None
+
+                  <li class = { clazz }><a href={ s"#${i.toLowerCase}" }>{ i }</a></li>
+                }
+              }
             </ul>
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
+  }
+
 }

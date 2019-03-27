@@ -21,38 +21,34 @@ object Main {
 
     val interactions: Var[Seq[Interaction]] = Var(Seq.empty)
 
-    def navigate(dest: String): Unit = dest match {
-      case "catalogue/interactions" =>
+    def navigate(href: String): Unit = href.split('#').tail.headOption match {
+      case Some(destination @ "catalogue/interactions") =>
 
         dom.ext.Ajax.get("/catalogue/interactions").onComplete {
           case Success(xhr) =>
 
             val json = xhr.responseText
             interactions := decodeUnsafe[Seq[Interaction]](json)
-            page := dest
+            page := destination
 
           case Failure(e) =>
             System.err.println(e.toString)
         }
-      case other =>
-        page := dest
+      case Some(destination) =>
+        page := destination
     }
 
     // back, forward navigation callback
     dom.window.onpopstate = popState => {
 
-      val split = dom.window.location.href.split('#').tail.headOption match {
-        case None       => navigate("")
-        case Some(page) => navigate(page)
-      }
-
+      navigate(dom.window.location.href)
       println(dom.window.location.href)
     }
 
-    def designPage(subPage: String) = {
+    def cataloguePage(subPage: String) = {
       <div>
         <div class="span3">
-          { sideBar(subPage) }
+          { Menu("catalogue", Seq("Recipes", "Interactions", "Ingredients"), subPage) }
         </div>
         <div class="span9">
           <div class="row-fluid">
@@ -67,33 +63,40 @@ object Main {
       </div>
     }
 
-    val layout =
-      <div>
-        {
-          page.map(p => topNavigationBar(p.split('/').head))
-        }
-        <div class="container-fluid">
-          <div class="row-fluid">
-            {
-              page.map { name =>
+    val layout = {
 
-                val subPage = name.split('/').tail.headOption.getOrElse("")
+      page.map { p =>
 
-//                println("subpage: " + subPage)
+        val mainPage = p.split('/').headOption.getOrElse("catalogue")
+        val subPage = p.split('/').tail.headOption.getOrElse("")
 
-                designPage(subPage)
+        <div>
+
+          { topNavigationBar(mainPage) }
+
+          <div class="container-fluid">
+            <div class="row-fluid">
+              {
+                if (mainPage == "catalogue")
+                  cataloguePage(subPage)
+                else
+                  <div></div>
               }
-            }
+            </div>
+            <hr />
+            <footer>
+              <a href = "https://www.github.com/merlijn/baker-http">Github code</a>
+            </footer>
           </div>
-          <hr />
-          <footer>
-            <p>Company 2013</p>
-          </footer>
         </div>
-      </div>
+      }
+    }
+
 
     val div = dom.document.getElementById("scalaJsContent")
 
     mount(div, layout)
+
+    navigate(dom.window.location.href)
   }
 }
