@@ -46,9 +46,4 @@ object API {
   def getLogs(sort: String, limit: Int, callbackFn: Seq[LogItem] => Unit): Unit = {
     callbackFn(testLogs)
   }
-
-  def addRecipe(recipe: Recipe): Unit = {
-
-
-  }
 }

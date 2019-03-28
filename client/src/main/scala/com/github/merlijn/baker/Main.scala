@@ -37,8 +37,8 @@ object Main {
               {
                 mainPage match {
 
-                  case "catalogue" => Pages.cataloguePage(subPage)
-                  case "monitor"   => Pages.monitorPage(subPage)
+                  case "catalogue" => pages.Catalogue(subPage)
+                  case "monitor"   => pages.Monitor(subPage)
                   case _           => <div></div>
                 }
               }
