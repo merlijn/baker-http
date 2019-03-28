@@ -8,17 +8,9 @@ object Components {
 
   val noContent: Rx[Elem] = Var(<div></div>)
 
-  val footer =
-    <footer>
-      <a href = "https://www.github.com/merlijn/baker-http">
-        <img src="/assets/img/Github-Mark-32px.png" />
-        <span style="padding-left: 10px">Github code</span>
-      </a>
-    </footer>
-
   def topNavigationBar(activePage: String) = {
 
-    val items = Seq("Catalogue", "Interact", "Monitor")
+    val items = Seq("Catalogue", "Monitor")
 
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -31,7 +23,10 @@ object Components {
           <a class="brand" href="#catalogue">Baker</a>
           <div class="nav-collapse collapse">
             <p class="navbar-text pull-right">
-              Logged in as <a href="#" class="navbar-link">Anonymous</a>
+              <a href = "https://www.github.com/merlijn/baker-http">
+                <img src="/assets/img/Github-Mark-32px.png" />
+                <span style="padding-left: 10px">Github code</span>
+              </a>
             </p>
             <ul class="nav">
               {

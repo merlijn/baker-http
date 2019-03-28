@@ -1,7 +1,7 @@
 package com.github.merlijn.baker.api
 
 import com.github.merlijn.baker.model
-import com.github.merlijn.baker.model.{Event, Ingredient, JsonCodecs, Schema}
+import com.github.merlijn.baker.model._
 import com.ing.baker.recipe.javadsl
 import com.ing.baker.runtime.core.{ProcessEvent, ProcessState, SensoryEventStatus}
 import com.ing.baker.types._
@@ -42,6 +42,33 @@ object DSLJsonCodecs extends model.JsonCodecs {
     }
   }
 
+  def parseIngredient(i: Ingredient): javadsl.Ingredient = {
+    javadsl.Ingredient(i.name, parseSchema(i.schema))
+  }
+
+  def parseEvent(e: Event): javadsl.Event = {
+    val ingredients = e.providedIngredients.map { parseIngredient  }
+    javadsl.Event(e.name, ingredients, None)
+  }
+
+  def parseInteraction(i: Interaction) = {
+    javadsl.Interaction(
+      name = i.name,
+      input = i.input.map(parseIngredient),
+      output = i.output.map(parseEvent)
+    )
+  }
+
+  def parseRecipe(recipe: Recipe): javadsl.Recipe = {
+    val sensoryEvents = recipe.sensoryEvents.map { parseEvent }
+    val interactions = recipe.interactions.map { parseInteraction }
+
+    javadsl.Recipe(
+      name = recipe.name,
+      interactions = interactions,
+      sensoryEvents = sensoryEvents)
+  }
+
   implicit val valueDecoder: Decoder[Value] = (c: HCursor) => Right(parseJson(c.value))
   implicit val valueEncoder: Encoder[Value] = {
     case PrimitiveValue(b: Boolean) => Json.fromBoolean(b)
@@ -64,30 +91,7 @@ object DSLJsonCodecs extends model.JsonCodecs {
   }
 
   implicit val recipeDSLDecoder: Decoder[javadsl.Recipe] = JsonCodecs.recipeDecoder.emap { recipe =>
-
-    def parseIngredient(i: Ingredient): javadsl.Ingredient = {
-      javadsl.Ingredient(i.name, parseSchema(i.schema))
-    }
-
-    def parseEvent(e: Event): javadsl.Event = {
-      val ingredients = e.providedIngredients.map { parseIngredient  }
-      javadsl.Event(e.name, ingredients, None)
-    }
-
-    val sensoryEvents = recipe.sensoryEvents.map { parseEvent }
-
-    val interactions = recipe.interactions.map { i =>
-      javadsl.Interaction(
-        name = i.name,
-        input = i.input.map(parseIngredient),
-        output = i.output.map(parseEvent)
-      )
-    }
-
-    Right(javadsl.Recipe(
-      name = recipe.name,
-      interactions = interactions,
-      sensoryEvents = sensoryEvents))
+    Right(parseRecipe(recipe))
   }
 
   implicit val sensoryEventStatusEncoder: Encoder[SensoryEventStatus] = (a: SensoryEventStatus) => Json.fromString(a.name())

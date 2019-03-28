@@ -23,7 +23,11 @@ object Table {
           {
             items.map { i =>
               <tr class= { rowStyle(i) } >
-                { cellRender.map(_._2(i)) }
+                {
+                  cellRender.map {
+                    case (_, fn) => <td>{ fn(i) }</td>
+                  }
+                }
               </tr>
             }
           }

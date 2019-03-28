@@ -10,6 +10,9 @@ import com.ing.baker.types.Value
 import scala.concurrent.duration._
 import DSLJsonCodecs._
 import EntityMarshalling._
+import com.github.merlijn.baker.model.LogItem
+import guru.nidi.graphviz.engine.Graphviz
+import guru.nidi.graphviz.parse.Parser
 
 object BakerRoutes extends Directives {
 
@@ -18,6 +21,13 @@ object BakerRoutes extends Directives {
   val defaultEventConfirm = "received"
 
   val catalogue = new Catalogue()
+
+  val testLogs = Seq(
+    LogItem("log-info", "Webshop", java.util.UUID.randomUUID().toString, "Event received", "", "OrderPlaced"),
+    LogItem("log-info", "Webshop", java.util.UUID.randomUUID().toString, "Event received", "", "OrderPlaced"),
+    LogItem("log-error", "Webshop", java.util.UUID.randomUUID().toString, "Interaction failed", "ValidateOrder", ""),
+    LogItem("log-warn", "Webshop", java.util.UUID.randomUUID().toString, "Retry scheduled in 10 seconds", "ValidateOrder", "")
+  )
 
   def apply(baker: Baker)(implicit actorSystem: ActorSystem): Route = {
 
@@ -45,10 +55,29 @@ object BakerRoutes extends Directives {
             complete(catalogue.allRecipes())
           }
         } ~
+        path("recipe" / "svg" / Segment) { recipeName =>
+          get {
+            val recipe = catalogue.allRecipes.find(_.name == recipeName).get
+            val dslRecipe = DSLJsonCodecs.parseRecipe(recipe)
+            val compiled = RecipeCompiler.compileRecipe(dslRecipe)
+            val graph = Parser.read(compiled.getRecipeVisualization)
+            complete(Graphviz.fromGraph(graph))
+          }
+        } ~
         path("interactions") {
           get {
             complete(catalogue.allInteractions())
           }
+        }
+      }
+    }
+
+    def monitorRoutes() = {
+
+      path("log") {
+        get {
+          // should be retreived from elastic search or similar
+          complete(testLogs)
         }
       }
     }
@@ -142,10 +171,14 @@ object BakerRoutes extends Directives {
         }
       }
 
-      assetRoutes ~
-        catalogueRoutes ~
-        pathPrefix("recipe") { recipeRoutes() } ~
-        pathPrefix("process") { processRoutes() }
+    def apiRoutes() =
+      catalogueRoutes ~
+      monitorRoutes() ~
+      pathPrefix("recipe") { recipeRoutes() } ~
+      pathPrefix("process") { processRoutes() }
 
+
+    assetRoutes ~
+      pathPrefix("api") { apiRoutes() }
   }
 }

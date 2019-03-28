@@ -25,8 +25,10 @@ object Main {
 
       page.map { p =>
 
-        val mainPage = p.split('/').headOption.getOrElse("catalogue")
-        val subPage = p.split('/').tail.headOption.getOrElse("")
+        val path = p.split('/')
+
+        val mainPage = path.headOption.getOrElse("catalogue")
+        val subPage = path.tail.headOption.getOrElse("")
 
         <div>
 
@@ -37,15 +39,14 @@ object Main {
               {
                 mainPage match {
 
-                  case "catalogue" => pages.Catalogue(subPage)
+                  case "catalogue" => pages.Catalogue(path.tail)
                   case "monitor"   => pages.Monitor(subPage)
                   case _           => <div></div>
                 }
               }
             </div>
-            <hr />
-            { Components.footer }
           </div>
+
         </div>
       }
     }

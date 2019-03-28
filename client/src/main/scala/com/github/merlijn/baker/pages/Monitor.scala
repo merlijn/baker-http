@@ -1,19 +1,15 @@
 package com.github.merlijn.baker.pages
 
 import com.github.merlijn.baker.model.LogItem
-import com.github.merlijn.baker.{API, Components, components}
+import com.github.merlijn.baker.{API, Components, Util, components}
 import mhtml.Var
 
 import scala.xml.Elem
 
 object Monitor {
 
-  lazy val logs: Var[Seq[LogItem]] = {
-
-    val seq: Var[Seq[LogItem]] = Var(Seq.empty)
-    API.getLogs(sort = "time", limit = 10, callbackFn = data => seq := data)
-    seq
-  }
+  lazy val logs: Var[Seq[LogItem]] =
+    Util.initVarFromCallback(Seq.empty, API.getLogs(sort = "time", limit = 10))
 
   def apply(subPage: String): Elem =
     <div>
@@ -36,11 +32,11 @@ object Monitor {
     components.Table[LogItem](
       log,
       Seq(
-        "Recipe"      -> (i => <td>{ i.recipe } </td>),
-        "Process Id"  -> (i => <td class="monospace">{ i.processId } </td> ),
-        "Type"        -> (i => <td>{ i.eventType } </td>),
-        "Interaction" -> (i => <td>{ i.interaction } </td>),
-        "Event"       -> (i => <td>{ i.event } </td>)
+        "Recipe"      -> (i => <span>{ i.recipe } </span>),
+        "Process Id"  -> (i => <span class="monospace">{ i.processId } </span> ),
+        "Type"        -> (i => <span>{ i.eventType } </span>),
+        "Interaction" -> (i => <span>{ i.interaction } </span>),
+        "Event"       -> (i => <span>{ i.event } </span>)
       ),
       i => Some(i.style)
     )
