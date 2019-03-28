@@ -1,7 +1,5 @@
 package com.github.merlijn.baker
 
-import com.github.merlijn.baker.model.Interaction
-
 
 object Main {
 
@@ -17,13 +15,12 @@ object Main {
       case Some(destination) => page := destination
     }
 
-    // back, forward navigation callback
+    // user navigation callback (back, forward buttons)
     dom.window.onpopstate = popState => {
-
       navigate(dom.window.location.href)
-      println(dom.window.location.href)
     }
 
+    // the main page layout
     val layout = {
 
       page.map { p =>

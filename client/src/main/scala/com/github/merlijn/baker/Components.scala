@@ -9,7 +9,7 @@ object Components {
     def apply(page: String, items: Seq[String], activeItem: String) =
       <div class="well sidebar-nav">
         <ul class="nav nav-list">
-          <li class = "nav-header">Catalogue</li>
+          <li class = "nav-header">{ page }</li>
           {
             items.map { name => menuItem(page, name, activeItem) }
           }
@@ -22,7 +22,7 @@ object Components {
       val clazz = if (active.equals(name)) Some("active") else None
       val href = s"#$page/$name"
 
-      <li class = { clazz } ><a href = { href }>{ name }</a></li>
+      <li class = { clazz } ><a href = { href }>{ label }</a></li>
     }
   }
 
@@ -57,7 +57,7 @@ object Components {
   val footer =
     <footer>
       <a href = "https://www.github.com/merlijn/baker-http">
-        <img src="resources/img/Github-Mark-32px.png" />
+        <img src="/assets/img/Github-Mark-32px.png" />
         <span style="padding-left: 10px">Github code</span>
       </a>
     </footer>

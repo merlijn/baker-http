@@ -10,11 +10,11 @@ object Html {
 
     html(
       head(
-        link(rel := "stylesheet", href := "/resources/css/app.css"),
-        link(rel := "stylesheet", href := "/resources/css/bootstrap.css"),
-        script(src := "/resources/js/jquery.js"),
-        script(src := "/resources/js/bootstrap.js"),
-        tags2.title("title")
+        link(rel := "stylesheet", href := "/assets/css/app.css"),
+        link(rel := "stylesheet", href := "/assets/css/bootstrap.css"),
+        script(src := "/assets/js/jquery.js"),
+        script(src := "/assets/js/bootstrap.js"),
+        tags2.title("Baker")
       ),
       body(`class` := "page")(
         div(id := "scalaJsContent"),

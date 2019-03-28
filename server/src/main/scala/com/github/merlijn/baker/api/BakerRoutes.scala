@@ -21,17 +21,19 @@ object BakerRoutes extends Directives {
 
   def apply(baker: Baker)(implicit actorSystem: ActorSystem): Route = {
 
-    val scalaJSRoutes = {
+    val assetRoutes = {
       pathSingleSlash {
         get {
           complete {
             Html.index
           }
         }
+      } ~ path("favicon.ico") {
+        get { encodeResponse { getFromResource("img/favicon.ico") } }
       } ~
         pathPrefix("js" / Remaining) { file =>
           encodeResponse { getFromResource("js/" + file) }
-        } ~ pathPrefix("resources" / Remaining) { file =>
+        } ~ pathPrefix("assets" / Remaining) { file =>
           encodeResponse { getFromResource(file) }
         }
     }
@@ -140,7 +142,7 @@ object BakerRoutes extends Directives {
         }
       }
 
-      scalaJSRoutes ~
+      assetRoutes ~
         catalogueRoutes ~
         pathPrefix("recipe") { recipeRoutes() } ~
         pathPrefix("process") { processRoutes() }

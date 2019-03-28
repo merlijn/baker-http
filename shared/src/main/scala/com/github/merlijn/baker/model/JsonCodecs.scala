@@ -24,6 +24,9 @@ trait JsonCodecs {
   implicit val recipeDecoder: Decoder[Recipe] = deriveDecoder
   implicit val recipeEncoder: Encoder[Recipe] = deriveEncoder
 
+  implicit val logItemDecoder: Decoder[LogItem] = deriveDecoder
+  implicit val logItemEncoder: Encoder[LogItem] = deriveEncoder
+
   def decodeUnsafe[T : Decoder](json: String): T = {
     val result = io.circe.parser.parse(json).flatMap(jsonAST => implicitly[Decoder[T]].decodeJson(jsonAST))
     result.right.get

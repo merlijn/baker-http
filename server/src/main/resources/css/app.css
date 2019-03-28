@@ -17,3 +17,23 @@ body {
       padding-right: 5px;
     }
 }
+
+.monospace {
+  font-family: monospace;
+}
+
+.log-info {
+  color: black;
+  background-color: white;
+}
+
+.log-warn {
+  color: black;
+  background-color: orange;
+}
+
+.log-error {
+  color: white;
+  background-color: red;
+}
+
