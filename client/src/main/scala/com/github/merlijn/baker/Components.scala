@@ -4,8 +4,6 @@ import com.github.merlijn.baker.model.Interaction
 
 object Components {
 
-  import mhtml._
-
   object Menu {
 
     def apply(page: String, items: Seq[String], activeItem: String) =
@@ -55,6 +53,14 @@ object Components {
         </tbody>
       </table>
     </div>
+
+  val footer =
+    <footer>
+      <a href = "https://www.github.com/merlijn/baker-http">
+        <img src="resources/img/Github-Mark-32px.png" />
+        <span style="padding-left: 10px">Github code</span>
+      </a>
+    </footer>
 
   def topNavigationBar(activePage: String) = {
 
