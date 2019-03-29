@@ -14,7 +14,7 @@ import com.github.merlijn.baker.model.LogItem
 import guru.nidi.graphviz.engine.Graphviz
 import guru.nidi.graphviz.parse.Parser
 
-object BakerRoutes extends Directives {
+object APIRoutes extends Directives {
 
   implicit val timeout: FiniteDuration = 30 seconds
 
@@ -34,9 +34,7 @@ object BakerRoutes extends Directives {
     val assetRoutes = {
       pathSingleSlash {
         get {
-          complete {
-            Html.index
-          }
+          complete { Html.index }
         }
       } ~ path("favicon.ico") {
         get { encodeResponse { getFromResource("img/favicon.ico") } }

@@ -5,7 +5,7 @@ import akka.http.scaladsl.Http
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.scaladsl.AkkaManagement
 import akka.stream.ActorMaterializer
-import com.github.merlijn.baker.api.BakerRoutes
+import com.github.merlijn.baker.api.APIRoutes
 import com.ing.baker.runtime.core.Baker
 import com.typesafe.config.ConfigFactory
 import org.slf4j.LoggerFactory
@@ -16,7 +16,7 @@ object WebServer extends App {
 
     val configFile = System.getenv().getOrDefault("APPLICATION_CONF", "local.conf")
 
-    log.warn("Using configuration file: " + configFile)
+    log.info("Using configuration file: " + configFile)
 
     val config = ConfigFactory.load(configFile)
 
@@ -30,7 +30,7 @@ object WebServer extends App {
     val interface = config.getString("http.interface")
     val port = config.getInt("http.port")
 
-    val routes = BakerRoutes(baker)
+    val routes = APIRoutes(baker)
 
     // this bootstraps the cluster
     config.getString("akka.actor.provider") match {
@@ -46,6 +46,6 @@ object WebServer extends App {
 
     Http(system).bindAndHandle(routes, interface, port)
 
-    println(s"Server online at http://$interface:$port")
+    log.info(s"Server online at http://$interface:$port")
 }
 

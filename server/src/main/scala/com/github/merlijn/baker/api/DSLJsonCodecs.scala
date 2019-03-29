@@ -42,19 +42,15 @@ object DSLJsonCodecs extends model.JsonCodecs {
     }
   }
 
-  def parseIngredient(i: Ingredient): javadsl.Ingredient = {
-    javadsl.Ingredient(i.name, parseSchema(i.schema))
-  }
-
   def parseEvent(e: Event): javadsl.Event = {
-    val ingredients = e.providedIngredients.map { parseIngredient  }
+    val ingredients = e.providedIngredients.map { case (name, schema) => javadsl.Ingredient(name, parseSchema(schema))  }.toSeq
     javadsl.Event(e.name, ingredients, None)
   }
 
   def parseInteraction(i: Interaction) = {
     javadsl.Interaction(
       name = i.name,
-      input = i.input.map(parseIngredient),
+      input = i.input.map { case (name, schema) => javadsl.Ingredient(name, parseSchema(schema)) }.toSeq,
       output = i.output.map(parseEvent)
     )
   }
@@ -87,7 +83,7 @@ object DSLJsonCodecs extends model.JsonCodecs {
   implicit val processStateDecoder: Decoder[ProcessState] = deriveDecoder[ProcessState]
 
   implicit val interactionDSLEncoder: Encoder[javadsl.Interaction] = JsonCodecs.interactionEncoder.contramap { i =>
-    model.Interaction(i.name, None, Seq.empty, Seq.empty, None)
+    model.Interaction(i.name, None, Map.empty, Seq.empty, None)
   }
 
   implicit val recipeDSLDecoder: Decoder[javadsl.Recipe] = JsonCodecs.recipeDecoder.emap { recipe =>

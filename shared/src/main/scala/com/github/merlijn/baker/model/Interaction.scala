@@ -2,6 +2,6 @@ package com.github.merlijn.baker.model
 
 case class Interaction(name: String,
                        originalName: Option[String],
-                       input: Seq[Ingredient],
+                       input: Map[String, Schema],
                        output: Seq[Event],
                        maximumExecutionCount: Option[Int] = None)

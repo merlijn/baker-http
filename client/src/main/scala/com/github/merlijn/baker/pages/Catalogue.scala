@@ -16,7 +16,7 @@ object Catalogue {
       interactions,
       Seq(
         "Name"   -> (i => <a href = { s"#catalogue/interactions/${i.name}" }>{ i.name }</a>),
-        "Input"  -> (i => <span>{ i.input.map(_.name).mkString(",") } </span> ),
+        "Input"  -> (i => <span>{ i.input.map(_._1).mkString(",") } </span> ),
         "Output" -> (i => <span>{ i.output.map(_.name).mkString(",") } </span>)
       )
     )

@@ -1,76 +1,104 @@
 {
-  "name":"webshop",
+  "name" : "com.example.webshop",
+  "label" : "Webshop",
+  "types" : {
+    "com.example.webshop.CustomerInfo" : {
+      "type":"object",
+      "properties":{
+        "name":{
+          "type":"string"
+        },
+        "address":{
+          "type":"string"
+        },
+        "email":{
+          "type":"string"
+        }
+      }
+    }
+  },
   "sensoryEvents":[
     {
       "name":"com.example.webshop.OrderPlaced",
-      "providedIngredients":[
-        {
-          "name":"order",
-          "schema":{
-            "type":"string"
-          }
-        }
-      ]
+      "providedIngredients": {
+         "order" : { "type" : "string" }
+      }
     },
     {
       "name":"com.example.webshop.CustomerInfoReceived",
-      "providedIngredients":[
+      "providedIngredients":
         {
-          "name":"customerInfo",
-          "schema":{
-            "type":"object",
-            "properties":{
-              "name":{
-                "type":"string"
-              },
-              "address":{
-                "type":"string"
-              },
-              "email":{
-                "type":"string"
-              }
-            }
-          }
+          "customerInfo" : { "$ref" : "#/types/com.example.webshop.CustomerInfo" }
         }
-      ]
+    },
+    {
+      "name":"com.example.webshop.PaymentMade",
+      "providedIngredients": { }
     }
   ],
   "interactions":[
     {
       "name":"com.example.webshop.ValidateOrder",
-      "input":[
+      "input":
         {
-          "name":"order",
-          "schema":{
-            "type":"string"
-          }
+          "order" : { "type" : "string" }
         }
-      ],
+      ,
       "output":[
         {
           "name":"com.example.webshop.ValidateOrder.Valid",
-          "providedIngredients":[]
+          "providedIngredients": { }
         },
         {
           "name":"com.example.webshop.ValidateOrder.Sorry",
-          "providedIngredients":[]
+          "providedIngredients": { }
         }
       ]
     },
     {
       "name":"com.example.webshop.ManufactureGoods",
-      "input":[
+      "input":
         {
-          "name":"order",
-          "schema":{
-            "type":"string"
-          }
+          "order" : { "type" : "string" }
         }
-      ],
+      ,
       "output":[
         {
           "name":"com.example.webshop.ManufactureGoods.GoodsManufactured",
-          "providedIngredients":[]
+          "providedIngredients": {
+            "goods" : { "type" : "string" }
+          }
+        }
+      ]
+    },
+    {
+      "name":"com.example.webshop.SendInvoice",
+      "input":
+      {
+        "customerInfo" : { "$ref" : "#/types/com.example.webshop.CustomerInfo" }
+      }
+      ,
+      "output":[
+        {
+          "name":"com.example.webshop.SendInvoice.InvoiceWasSent",
+          "providedIngredients": { }
+        }
+      ]
+    },
+    {
+      "name":"com.example.webshop.ShipGoods",
+      "input":
+      {
+        "customerInfo" : { "$ref" : "#/types/com.example.webshop.CustomerInfo" },
+        "goods" : { "type" : "string" }
+      }
+    ,
+      "output":[
+        {
+          "name":"com.example.webshop.ShipGoods.GoodsShipped",
+          "providedIngredients": {
+            "trackingId" : { "type" : "string" }
+          }
         }
       ]
     }

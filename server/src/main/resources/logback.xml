@@ -83,7 +83,7 @@
 
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
-        <appender-ref ref="ELASTIC" />
+        <!--<appender-ref ref="ELASTIC" />-->
     </root>
 
     <logger name="es-error-logger" level="INFO" additivity="false">
