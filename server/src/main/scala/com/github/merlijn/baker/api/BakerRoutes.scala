@@ -40,10 +40,7 @@ object BakerRoutes extends Directives {
         }
       } ~ path("favicon.ico") {
         get { encodeResponse { getFromResource("img/favicon.ico") } }
-      } ~
-        pathPrefix("js" / Remaining) { file =>
-          encodeResponse { getFromResource("js/" + file) }
-        } ~ pathPrefix("assets" / Remaining) { file =>
+      } ~ pathPrefix("assets" / Remaining) { file =>
           encodeResponse { getFromResource(file) }
         }
     }

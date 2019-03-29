@@ -81,6 +81,7 @@ lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
+  dockerExposedPorts := Seq(8080),
   scalaVersion := "2.12.5",
   organization := "com.github.merlijn"
 )

@@ -51,7 +51,7 @@ object Main {
       }
     }
 
-    val div = dom.document.getElementById("scalaJsContent")
+    val div = dom.document.getElementById("baker-app")
 
     mount(div, layout)
 
