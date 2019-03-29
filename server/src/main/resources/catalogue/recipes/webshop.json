@@ -3,101 +3,125 @@
   "label" : "Webshop",
   "types" : {
     "com.example.webshop.CustomerInfo" : {
-      "type":"object",
-      "properties":{
-        "name":{
-          "type":"string"
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
         },
-        "address":{
-          "type":"string"
+        "address" : {
+          "type" : "string"
         },
-        "email":{
-          "type":"string"
+        "email" : {
+          "type" : "string"
         }
       }
     }
   },
-  "sensoryEvents":[
+  "sensoryEvents" : [
     {
-      "name":"com.example.webshop.OrderPlaced",
-      "providedIngredients": {
-         "order" : { "type" : "string" }
+      "name" : "com.example.webshop.OrderPlaced",
+      "providedIngredients" : {
+        "order" : {
+          "type" : "string"
+        }
       }
     },
     {
-      "name":"com.example.webshop.CustomerInfoReceived",
-      "providedIngredients":
-        {
-          "customerInfo" : { "$ref" : "#/types/com.example.webshop.CustomerInfo" }
+      "name" : "com.example.webshop.CustomerInfoReceived",
+      "providedIngredients" : {
+        "customerInfo" : {
+          "$ref" : "#/types/com.example.webshop.CustomerInfo"
         }
+      }
     },
     {
-      "name":"com.example.webshop.PaymentMade",
-      "providedIngredients": { }
+      "name" : "com.example.webshop.PaymentMade",
+      "providedIngredients" : {
+
+      }
     }
   ],
-  "interactions":[
+  "interactions" : [
     {
-      "name":"com.example.webshop.ValidateOrder",
-      "input":
-        {
-          "order" : { "type" : "string" }
+      "name" : "com.example.webshop.ValidateOrder",
+      "input" : {
+        "order" : {
+          "type" : "string"
         }
-      ,
-      "output":[
+      },
+      "output" : [
         {
-          "name":"com.example.webshop.ValidateOrder.Valid",
-          "providedIngredients": { }
+          "name" : "com.example.webshop.ValidateOrder.Valid",
+          "providedIngredients" : {
+
+          }
         },
         {
-          "name":"com.example.webshop.ValidateOrder.Sorry",
-          "providedIngredients": { }
-        }
-      ]
-    },
-    {
-      "name":"com.example.webshop.ManufactureGoods",
-      "input":
-        {
-          "order" : { "type" : "string" }
-        }
-      ,
-      "output":[
-        {
-          "name":"com.example.webshop.ManufactureGoods.GoodsManufactured",
-          "providedIngredients": {
-            "goods" : { "type" : "string" }
+          "name" : "com.example.webshop.ValidateOrder.Sorry",
+          "providedIngredients" : {
+
           }
         }
       ]
     },
     {
-      "name":"com.example.webshop.SendInvoice",
-      "input":
-      {
-        "customerInfo" : { "$ref" : "#/types/com.example.webshop.CustomerInfo" }
-      }
-      ,
-      "output":[
-        {
-          "name":"com.example.webshop.SendInvoice.InvoiceWasSent",
-          "providedIngredients": { }
+      "name" : "com.example.webshop.ManufactureGoods",
+      "input" : {
+        "order" : {
+          "type" : "string"
         }
+      },
+      "output" : [
+        {
+          "name" : "com.example.webshop.ManufactureGoods.GoodsManufactured",
+          "providedIngredients" : {
+            "goods" : {
+              "type" : "string"
+            }
+          }
+        }
+      ],
+      "requiredEvents" : [
+        "com.example.webshop.ValidateOrder.Valid",
+        "com.example.webshop.PaymentMade"
       ]
     },
     {
-      "name":"com.example.webshop.ShipGoods",
-      "input":
-      {
-        "customerInfo" : { "$ref" : "#/types/com.example.webshop.CustomerInfo" },
-        "goods" : { "type" : "string" }
-      }
-    ,
-      "output":[
+      "name" : "com.example.webshop.SendInvoice",
+      "input" : {
+        "customerInfo" : {
+          "$ref" : "#/types/com.example.webshop.CustomerInfo"
+        }
+      },
+      "output" : [
         {
-          "name":"com.example.webshop.ShipGoods.GoodsShipped",
-          "providedIngredients": {
-            "trackingId" : { "type" : "string" }
+          "name" : "com.example.webshop.SendInvoice.InvoiceWasSent",
+          "providedIngredients" : {
+
+          }
+        }
+      ],
+      "requiredEvents" : [
+        "com.example.webshop.ShipGoods.GoodsShipped"
+      ]
+    },
+    {
+      "name" : "com.example.webshop.ShipGoods",
+      "input" : {
+        "customerInfo" : {
+          "$ref" : "#/types/com.example.webshop.CustomerInfo"
+        },
+        "goods" : {
+          "type" : "string"
+        }
+      },
+      "output" : [
+        {
+          "name" : "com.example.webshop.ShipGoods.GoodsShipped",
+          "providedIngredients" : {
+            "trackingId" : {
+              "type" : "string"
+            }
           }
         }
       ]

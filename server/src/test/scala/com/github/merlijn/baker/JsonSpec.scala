@@ -24,7 +24,7 @@ class JsonSpec extends WordSpec with Matchers {
 
       val recipe = JsonCodecs.decodeUnsafe[Recipe](json)
 
-      println(recipe)
+      println(ast.toString())
 
     }
   }

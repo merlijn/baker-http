@@ -18,8 +18,8 @@ trait JsonCodecs {
   implicit val ingredientDecoder: Decoder[Ingredient] = deriveDecoder
   implicit val ingredientEncoder: Encoder[Ingredient] = deriveEncoder
 
-  implicit val interactionDecoder: Decoder[Interaction] = deriveDecoder
-  implicit val interactionEncoder: Encoder[Interaction] = deriveEncoder
+  implicit val interactionDecoder: Decoder[Interaction] = deriveDecoder[Interaction]
+  implicit val interactionEncoder: Encoder[Interaction] = deriveEncoder[Interaction]
 
   implicit val recipeDecoder: Decoder[Recipe] = deriveDecoder
   implicit val recipeEncoder: Encoder[Recipe] = deriveEncoder
